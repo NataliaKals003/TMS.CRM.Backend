@@ -1,0 +1,11 @@
+!.eslintrc.js
+!.prettierrc.js
+*.d.ts
+node_modules
+coverage
+dist
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+.DS_Store

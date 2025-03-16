@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "lib": [
+      "ES2022",
+    ],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "target": "ES2022",
+    "types": [
+      "node",
+      "vitest/globals",
+    ],
+    "typeRoots": [
+      "./node_modules",
+      "./node_modules/@types",
+    ],
+    "verbatimModuleSyntax": true,
+  },
+  "exclude": [
+    "node_modules",
+    "cdk.out",
+    "dist",
+  ],
+}
