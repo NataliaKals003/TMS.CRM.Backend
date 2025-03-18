@@ -15,9 +15,7 @@ describe('API - User - GET', () => {
   const usersGlobal: UserEntry[] = [];
 
   beforeAll(async () => {
-    const tenant = await knexClient(tenantTableName)
-      .insert(TenantEntryBuilder.make().withFirstName('John').withLastName('Doe').withEmail('john.doe@example.com').build())
-      .returning('*');
+    const tenant = await knexClient(tenantTableName).insert(TenantEntryBuilder.make().withName('Tenant 1').build()).returning('*');
 
     tenantsGlobal.push(...tenant);
 

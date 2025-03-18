@@ -7,9 +7,7 @@ export async function up(knex) {
     .createTable('Tenant', (table) => {
       table.increments('Id').primary();
       table.uuid('ExternalUuid').unique().notNullable().defaultTo(knex.raw('gen_random_uuid()'));
-      table.string('FirstName', 50).notNullable();
-      table.string('LastName', 50).notNullable();
-      table.string('Email', 100).notNullable();
+      table.string('Name', 50).notNullable();
       table.timestamp('CreatedOn').defaultTo(knex.fn.now()).notNullable();
       table.timestamp('ModifiedOn');
       table.timestamp('DeletedOn');

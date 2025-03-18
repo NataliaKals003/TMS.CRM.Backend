@@ -2,6 +2,7 @@ import { handler } from '../../../../lambdas/api/user/postUser.js';
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { APIGatewayProxyEventBuilder } from '../../../builders/apiGatewayProxyEventBuilder.js';
 import { selectUserByExternalUuid } from '../../../../repositories/userRepository.js';
+
 describe('API - User - POST', () => {
   it('Success - Should create a user', async () => {
     const payload = {
