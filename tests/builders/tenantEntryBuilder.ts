@@ -11,8 +11,18 @@ export class TenantEntryBuilder {
     } as any as TenantEntry;
   }
 
-  withName(value: string): this {
-    this.tenantEntry.Name = value;
+  withFirstName(value: string): this {
+    this.tenantEntry.FirstName = value;
+    return this;
+  }
+
+  withLastName(value: string): this {
+    this.tenantEntry.LastName = value;
+    return this;
+  }
+
+  withEmail(value: string): this {
+    this.tenantEntry.Email = value;
     return this;
   }
 

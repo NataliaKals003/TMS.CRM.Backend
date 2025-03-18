@@ -16,9 +16,9 @@ describe('API - User - GET', () => {
   beforeAll(async () => {
     const tenant = await knexClient(tenantTableName)
       .insert([
-        TenantEntryBuilder.make().withName('Tenant 1').build(),
-        TenantEntryBuilder.make().withName('Tenant 2').build(),
-        TenantEntryBuilder.make().withName('Tenant 3').build(),
+        TenantEntryBuilder.make().withFirstName('Tenant').withLastName('One').withEmail('tenant1@example.com').build(),
+        TenantEntryBuilder.make().withFirstName('Tenant').withLastName('Two').withEmail('tenant2@example.com').build(),
+        TenantEntryBuilder.make().withFirstName('Tenant').withLastName('Three').withEmail('tenant3@example.com').build(),
       ])
       .returning('*');
     tenantsGlobal.push(...tenant);
