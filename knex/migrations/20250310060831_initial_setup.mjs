@@ -41,7 +41,7 @@ export async function up(knex) {
       table.string('Street', 255).notNullable();
       table.string('City', 100).notNullable();
       table.string('State', 50).notNullable();
-      table.string('Zip_code', 20).notNullable();
+      table.string('ZipCode', 20).notNullable();
       table.string('ProfileImageUrl', 255);
       table.timestamp('CreatedOn').defaultTo(knex.fn.now()).notNullable();
       table.timestamp('ModifiedOn');
@@ -99,11 +99,11 @@ export async function up(knex) {
  */
 export async function down(knex) {
   await knex.schema
+    .dropTableIfExists('Task')
+    .dropTableIfExists('Activity')
+    .dropTableIfExists('Deal')
+    .dropTableIfExists('Customer')
     .dropTableIfExists('UserTenant')
     .dropTableIfExists('User')
-    .dropTableIfExists('Tenant')
-    .dropTableIfExists('Activity')
-    .dropTableIfExists('Task')
-    .dropTableIfExists('Deal')
-    .dropTableIfExists('Customer');
+    .dropTableIfExists('Tenant');
 }

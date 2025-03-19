@@ -1,38 +1,60 @@
-import { handler } from '../../../../lambdas/api/user/getUser.js';
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { APIGatewayProxyEventBuilder } from '../../../builders/apiGatewayProxyEventBuilder.js';
-import { selectUserByExternalUuid, userTableName } from '../../../../repositories/userRepository.js';
-import { UserEntryBuilder } from '../../../builders/userEntryBuilder.js';
-import type { UserEntry } from '../../../../models/database/userEntry.js';
 import { knexClient } from '../../../../lib/utils/knexClient.js';
 import { randomUUID } from 'crypto';
 import type { TenantEntry } from '../../../../models/database/tenantEntry.js';
 import { tenantTableName } from '../../../../repositories/tenantRepository.js';
 import { TenantEntryBuilder } from '../../../builders/tenantEntryBuilder.js';
+import type { CustomerEntry } from '../../../../models/database/customerEntry.js';
+import { customerTableName, selectCustomerByExternalUuid } from '../../../../repositories/customerRepository.js';
+import { CustomerEntryBuilder } from '../../../builders/customerEntryBuilder.js';
+import { handler } from '../../../../lambdas/api/customer/getCustomer.js';
 
 describe('API - User - GET', () => {
   const tenantsGlobal: TenantEntry[] = [];
-  const usersGlobal: UserEntry[] = [];
+  const customersGlobal: CustomerEntry[] = [];
 
   beforeAll(async () => {
     const tenant = await knexClient(tenantTableName).insert(TenantEntryBuilder.make().withName('Tenant 1').build()).returning('*');
 
     tenantsGlobal.push(...tenant);
 
-    const user = await knexClient(userTableName)
+    const customer = await knexClient(customerTableName)
       .insert([
-        UserEntryBuilder.make().withFirstName('John').withLastName('Doe').withEmail('john.doe@example.com').build(),
-        UserEntryBuilder.make().withFirstName('Jane').withLastName('Paul').withEmail('jane.paul@example.com').build(),
+        CustomerEntryBuilder.make()
+          .withTenantId(tenantsGlobal[0].Id)
+          .withFirstName('John')
+          .withLastName('Doe')
+          .withEmail('john.doe@example.com')
+          .withPhone('642103273576')
+          .withStreet('202/3 Rose Garden Lane')
+          .withCity('Auckland')
+          .withState('Auckland Region')
+          .withZipCode('0632')
+          .withProfileImageUrl('http/1234')
+          .build(),
+        CustomerEntryBuilder.make()
+          .withTenantId(tenantsGlobal[0].Id)
+          .withFirstName('Jane')
+          .withLastName('Pan')
+          .withEmail('jane.pan@example.com')
+          .withPhone('642103273576')
+          .withStreet('103/4 Rose Garden Lane')
+          .withCity('Auckland')
+          .withState('Auckland Region')
+          .withZipCode('0632')
+          .withProfileImageUrl('http/1234')
+          .build(),
       ])
       .returning('*');
 
-    usersGlobal.push(...user);
+    customersGlobal.push(...customer);
   });
 
-  it('Success - Should get a user', async () => {
+  it('Success - Should get a customer', async () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withPathParameters({
-        uuid: usersGlobal[0].ExternalUuid,
+        uuid: customersGlobal[0].ExternalUuid,
       })
       .build();
 
@@ -44,9 +66,15 @@ describe('API - User - GET', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).data;
-    expect(resultData.firstName).toBe(usersGlobal[0].FirstName);
-    expect(resultData.lastName).toBe(usersGlobal[0].LastName);
-    expect(resultData.email).toBe(usersGlobal[0].Email);
+    expect(resultData.firstName).toBe(customersGlobal[0].FirstName);
+    expect(resultData.lastName).toBe(customersGlobal[0].LastName);
+    expect(resultData.email).toBe(customersGlobal[0].Email);
+    expect(resultData.phone).toBe(customersGlobal[0].Phone);
+    expect(resultData.street).toBe(customersGlobal[0].Street);
+    expect(resultData.city).toBe(customersGlobal[0].City);
+    expect(resultData.state).toBe(customersGlobal[0].State);
+    expect(resultData.zipCode).toBe(customersGlobal[0].ZipCode);
+    expect(resultData.profileImageUrl).toBe(customersGlobal[0].ProfileImageUrl);
     expect(resultData.uuid).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeDefined();
@@ -79,6 +107,6 @@ describe('API - User - GET', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).errorMessage;
-    expect(resultData).toBe('User not found');
+    expect(resultData).toBe('Customer not found');
   });
 });
