@@ -1,5 +1,4 @@
 import { randomUUID } from 'crypto';
-import type { UserEntry } from '../../models/database/userEntry.js';
 import type { CustomerEntry } from '../../models/database/customerEntry.js';
 
 export class CustomerEntryBuilder {
@@ -57,8 +56,8 @@ export class CustomerEntryBuilder {
     return this;
   }
 
-  withProfileImageUrl(value: string): this {
-    this.customerEntry.ProfileImageUrl = value;
+  withCustomerImageUrl(value: string): this {
+    this.customerEntry.CustomerImageUrl = value;
     return this;
   }
 

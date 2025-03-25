@@ -1,0 +1,94 @@
+import { knexClient } from '../lib/utils/knexClient.js';
+import { logger } from '../lib/utils/logger.js';
+import type { PaginatedResponse } from '../models/api/responses/pagination.js';
+import { DealEntry, ExtendedDealEntry } from '../models/database/dealEntry.js';
+import { customerTableName } from './customerRepository.js';
+
+export const dealTableName = 'Deal';
+
+/** Insert the Deal */
+export async function insertDeal(deal: Partial<DealEntry>): Promise<number> {
+  const query = knexClient(dealTableName).insert(deal).returning('Id');
+  const record = await query;
+
+  logger.info(`Successfully inserted Deal. Id: ${record[0].Id}`);
+  return record[0].Id;
+}
+
+/** Get the Deal by Id */
+export async function selectDealById(id: number): Promise<ExtendedDealEntry | null> {
+  const [deal] = await knexClient(dealTableName).select('*').where('Id', id);
+
+  return deal ? new ExtendedDealEntry(deal) : null;
+}
+
+/** Get the Deal by ExternalUuid */
+export async function selectDealByExternalUuid(externalUuid: string): Promise<ExtendedDealEntry | null> {
+  const [deal] = await knexClient(dealTableName)
+    .select(
+      `${dealTableName}.*`,
+      `${customerTableName}.ExternalUuid`,
+      `${customerTableName}.CustomerImageUrl`,
+      `${customerTableName}.FirstName`,
+      `${customerTableName}.LastName`,
+      `${customerTableName}.Email`,
+      `${customerTableName}.Phone`,
+    )
+    .innerJoin(customerTableName, `${dealTableName}.CustomerId`, '=', `${customerTableName}.Id`)
+    .where(`${dealTableName}.ExternalUuid`, externalUuid);
+
+  return deal ? new ExtendedDealEntry(deal) : null;
+}
+
+export async function selectDeals(
+  limit: number,
+  offset: number,
+  tenantId: number | null,
+  // customerId: number | null,
+): Promise<PaginatedResponse<ExtendedDealEntry>> {
+  // Base query without deleted deals
+  const baseQuery = knexClient(dealTableName).whereNull(`${dealTableName}.DeletedOn`);
+
+  // If tenantId is provided, join the customerTenant table and filter by tenantId
+  if (tenantId) {
+    baseQuery.where(`${dealTableName}.TenantId`, tenantId);
+  }
+
+  // Get the customers
+  const deals = await baseQuery
+    .clone()
+    .innerJoin(customerTableName, `${dealTableName}.CustomerId`, '=', `${customerTableName}.Id`)
+    .limit(limit)
+    .offset(offset)
+    .select(
+      `${dealTableName}.*`,
+      `${customerTableName}.ExternalUuid`,
+      `${customerTableName}.CustomerImageUrl`,
+      `${customerTableName}.FirstName`,
+      `${customerTableName}.LastName`,
+      `${customerTableName}.Email`,
+      `${customerTableName}.Phone`,
+    );
+
+  // Get the total number of customers
+  const total = (await baseQuery.clone().count('*'))[0]['count'];
+
+  return {
+    items: deals.map((deal) => new ExtendedDealEntry(deal)),
+    total: Number(total),
+  };
+}
+
+/** Update the Customer */
+export async function updateDeal(dealId: number, deal: Partial<ExtendedDealEntry>): Promise<void> {
+  await knexClient(dealTableName).update(deal).where('Id', dealId);
+
+  logger.info(`Successfully updated User. Id: ${dealId}`);
+}
+
+//**Delete Deal */
+export async function softDeleteDealById(dealId: number): Promise<void> {
+  const [record] = await knexClient(dealTableName).update({ DeletedOn: new Date().toISOString() }).where('Id', dealId).returning('Id');
+
+  logger.info(`Successfully soft deleted Deal. Id: ${record.Id}`);
+}

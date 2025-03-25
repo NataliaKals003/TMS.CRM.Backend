@@ -33,7 +33,6 @@ export async function selectCustomers(limit: number, offset: number, tenantId: n
   // Base query without deleted customers
   const baseQuery = knexClient(customerTableName).whereNull(`${customerTableName}.DeletedOn`);
 
-  // If tenantId is provided, join the customerTenant table and filter by tenantId
   if (tenantId) {
     baseQuery.where(`${customerTableName}.TenantId`, tenantId);
   }

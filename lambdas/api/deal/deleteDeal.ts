@@ -5,7 +5,7 @@ import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiRes
 import { validateAndParsePathParams } from '../../../lib/utils/apiValidations.js';
 import { BadRequestError } from '../../../models/api/responses/errors.js';
 import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
-import { selectCustomerByExternalUuid, softDeleteCustomerById } from '../../../repositories/customerRepository.js';
+import { selectDealByExternalUuid, softDeleteDealById } from '../../../repositories/dealRepository.js';
 
 export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyResultV2> {
   logger.info('Request received: ', request);
@@ -22,7 +22,7 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
 
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
-  // TODO: Pull tenantId and userId from the token
+  // TODO: Pull tenantId from the token
 
   return { tenantId: null, userId: null, payload: null, pathParameter: parsedPathParameter.uuid };
 }
@@ -30,20 +30,20 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
 export async function persistRecords(validatedRequest: ValidatedAPIRequest<null>): Promise<void> {
   logger.info('Start - persistRecords');
 
-  // Validate the customer exists
-  const customerUuid = validatedRequest.pathParameter!;
-  const customer = await selectCustomerByExternalUuid(customerUuid);
+  // Validate the deal exists
+  const dealUuid = validatedRequest.pathParameter!;
+  const deal = await selectDealByExternalUuid(dealUuid);
 
-  if (!customer) {
-    throw new BadRequestError('Customer not found');
+  if (!deal) {
+    throw new BadRequestError('Deal not found');
   }
 
   // Soft delete the customer
-  await softDeleteCustomerById(customer.Id);
+  await softDeleteDealById(deal.Id);
 }
 
 export async function formatResponseData(): Promise<DeleteSuccess<null>> {
   logger.info('Start - formatResponse');
 
-  return new DeleteSuccess<null>('Customer has been deleted');
+  return new DeleteSuccess<null>('Deal has been deleted');
 }

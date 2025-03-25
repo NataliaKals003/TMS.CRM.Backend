@@ -1,14 +1,20 @@
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { APIGatewayProxyEventBuilder } from '../../../builders/apiGatewayProxyEventBuilder.js';
+import { selectUserByExternalUuid, userTableName } from '../../../../repositories/userRepository.js';
+import { UserEntryBuilder } from '../../../builders/userEntryBuilder.js';
+import type { UserEntry } from '../../../../models/database/userEntry.js';
 import { knexClient } from '../../../../lib/utils/knexClient.js';
+import type { PutUserRequestPayload } from '../../../../models/api/payloads/user.js';
 import { randomUUID } from 'crypto';
 import type { CustomerEntry } from '../../../../models/database/customerEntry.js';
 import { customerTableName, selectCustomerByExternalUuid } from '../../../../repositories/customerRepository.js';
 import { CustomerEntryBuilder } from '../../../builders/customerEntryBuilder.js';
 import type { PutCustomerRequestPayload } from '../../../../models/api/payloads/customer.js';
 import { handler } from '../../../../lambdas/api/customer/putCustomer.js';
+import type { TenantEntry } from '../../../../models/database/tenantEntry.js';
 
 describe('API - Customer - PUT', () => {
+  const tenantsGlobal: TenantEntry[] = [];
   const customersGlobal: CustomerEntry[] = [];
 
   beforeAll(async () => {
@@ -18,15 +24,15 @@ describe('API - Customer - PUT', () => {
           .withFirstName('John')
           .withLastName('Doe')
           .withEmail('john.doe@example.com')
-          .withPhone('123-456-7890')
-          .withStreet('123 Main St')
-          .withCity('Springfield')
-          .withState('IL')
-          .withZipCode('62704')
-          .withProfileImageUrl('https://example.com/profile.jpg')
+          .withPhone('1234567890')
+          .withStreet('234/Rose')
+          .withCity('Auckland')
+          .withState('AKL')
+          .withZipCode('1010')
+          .withCustomerImageUrl('https://example.com/image.jpg')
           .build(),
       )
-      .returning(['Id', 'ExternalUuid', 'FirstName', 'LastName', 'Phone', 'Street', 'City', 'State', 'ZipCode', 'ProfileImageUrl']);
+      .returning(['*']);
 
     customersGlobal.push(...customer);
   });
@@ -38,10 +44,10 @@ describe('API - Customer - PUT', () => {
       email: 'new.john.doe@example.com',
       phone: customersGlobal[0].Phone,
       street: customersGlobal[0].Street,
-      city: 'Los Angeles',
+      city: customersGlobal[0].City,
       state: customersGlobal[0].State,
       zipCode: customersGlobal[0].ZipCode,
-      profileImageUrl: customersGlobal[0].ProfileImageUrl,
+      customerImageUrl: String(customersGlobal[0].CustomerImageUrl),
     };
 
     const event = APIGatewayProxyEventBuilder.make()
@@ -67,7 +73,8 @@ describe('API - Customer - PUT', () => {
     expect(resultData.city).toBe(payload.city);
     expect(resultData.state).toBe(payload.state);
     expect(resultData.zipCode).toBe(payload.zipCode);
-    expect(resultData.profileImageUrl).toBe(payload.profileImageUrl);
+    expect(resultData.customerImageUrl).toBe(payload.customerImageUrl);
+
     expect(resultData.uuid).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeDefined();
@@ -85,10 +92,10 @@ describe('API - Customer - PUT', () => {
       email: 'new.john.doe@example.com',
       phone: customersGlobal[0].Phone,
       street: customersGlobal[0].Street,
-      city: 'Los Angeles',
+      city: customersGlobal[0].City,
       state: customersGlobal[0].State,
       zipCode: customersGlobal[0].ZipCode,
-      profileImageUrl: customersGlobal[0].ProfileImageUrl,
+      customerImageUrl: String(customersGlobal[0].CustomerImageUrl),
     };
 
     // Event missing the uuid path parameter
@@ -106,19 +113,21 @@ describe('API - Customer - PUT', () => {
   });
 
   it('Error - Should return a 400 error if the body is missing required fields', async () => {
-    // Payload missing the email and city
+    // Payload missing the email, phone, street, city, state, zipCode
     const payload: Partial<PutCustomerRequestPayload> = {
       firstName: customersGlobal[0].FirstName,
       lastName: customersGlobal[0].LastName,
-      phone: customersGlobal[0].Phone,
-      street: customersGlobal[0].Street,
-      state: customersGlobal[0].State,
-      zipCode: customersGlobal[0].ZipCode,
-      profileImageUrl: customersGlobal[0].ProfileImageUrl,
+      // email: customersGlobal[0].Email,
+      // phone: customersGlobal[0].Phone,
+      // street: customersGlobal[0].Street,
+      // city: customersGlobal[0].City,
+      // state: customersGlobal[0].State,
+      // zipCode: customersGlobal[0].ZipCode,
+      customerImageUrl: String(customersGlobal[0].CustomerImageUrl),
     };
 
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters(payload).withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: customersGlobal[0].ExternalUuid }).withBody(payload).build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -128,20 +137,20 @@ describe('API - Customer - PUT', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).errorMessage;
-    expect(resultData).toBe('Missing fields: email, city');
+    expect(resultData).toBe('Missing fields: email, phone, street, city, state, zipCode');
   });
 
-  it('Error - Should return a 400 error if the usecustomerr does not exist', async () => {
+  it('Error - Should return a 400 error if the customer does not exist', async () => {
     const payload: PutCustomerRequestPayload = {
       firstName: 'Marcus',
       lastName: 'Aurelius',
       email: 'marcus.aurelius@example.com',
-      phone: '987-654-3210',
-      street: '456 Elm St',
+      phone: '0987654321',
+      street: '123/Colosseum',
       city: 'Rome',
-      state: 'IT',
+      state: 'ROM',
       zipCode: '00100',
-      profileImageUrl: 'https://example.com/marcus.jpg',
+      customerImageUrl: 'https://example.com/marcus.jpg',
     };
 
     // Event missing the uuid path parameter

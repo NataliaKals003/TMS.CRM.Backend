@@ -2,38 +2,32 @@ import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { APIGatewayProxyEventBuilder } from '../../../builders/apiGatewayProxyEventBuilder.js';
 import { knexClient } from '../../../../lib/utils/knexClient.js';
 import { randomUUID } from 'crypto';
-import type { CustomerEntry } from '../../../../models/database/customerEntry.js';
-import { customerTableName, selectCustomerByExternalUuid } from '../../../../repositories/customerRepository.js';
-import { CustomerEntryBuilder } from '../../../builders/customerEntryBuilder.js';
-import { handler } from '../../../../lambdas/api/customer/deleteCustomer.js';
+import type { ActivityEntry } from '../../../../models/database/activityEntry.js';
+import { activityTableName, selectActivityByExternalUuid } from '../../../../repositories/activityRepository.js';
+import { ActivityEntryBuilder } from '../../../builders/activityEntryBuilder.js';
+import { handler } from '../../../../lambdas/api/activity/deleteActivity.js';
 
-describe('API - Customer - DELETE', () => {
-  const customersGlobal: CustomerEntry[] = [];
+describe('API - Activity - DELETE', () => {
+  const activitiesGlobal: ActivityEntry[] = [];
 
   beforeAll(async () => {
-    const customer = await knexClient(customerTableName)
+    const activity = await knexClient(activityTableName)
       .insert(
-        CustomerEntryBuilder.make()
-          .withFirstName('John')
-          .withLastName('Doe')
-          .withEmail('john.doe@example.com')
-          .withPhone('642103273576')
-          .withStreet('202/3 Rose Garden Lane')
-          .withCity('Auckland')
-          .withState('Auckland Region')
-          .withZipCode('0632')
-          .withCustomerImageUrl('http/1234')
+        ActivityEntryBuilder.make()
+          .withDescription('Sample activity description')
+          .withActivityDate(new Date().toISOString())
+          .withActivityImageUrl('http://example.com/profile.jpg')
           .build(),
       )
       .returning('*');
 
-    customersGlobal.push(...customer);
+    activitiesGlobal.push(...activity);
   });
 
-  it('Success - Should delete a customer', async () => {
+  it('Success - Should delete a activity', async () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withPathParameters({
-        uuid: customersGlobal[0].ExternalUuid,
+        uuid: activitiesGlobal[0].ExternalUuid,
       })
       .build();
 
@@ -45,8 +39,8 @@ describe('API - Customer - DELETE', () => {
     expect(res.body).toBeDefined();
 
     // Validate the database record
-    const customer = await selectCustomerByExternalUuid(customersGlobal[0].ExternalUuid);
-    expect(customer?.DeletedOn).toBeDefined();
+    const activity = await selectActivityByExternalUuid(activitiesGlobal[0].ExternalUuid);
+    expect(activity?.DeletedOn).toBeDefined();
   });
 
   it('Error - Should return a 400 error if the path parameter is missing', async () => {
@@ -63,7 +57,7 @@ describe('API - Customer - DELETE', () => {
     expect(resultData).toBe('Missing path parameters: uuid');
   });
 
-  it('Error - Should return a 400 error if the customer does not exist', async () => {
+  it('Error - Should return a 400 error if the activity does not exist', async () => {
     // Event missing the uuid path parameter
     const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).build();
 
@@ -75,6 +69,6 @@ describe('API - Customer - DELETE', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).errorMessage;
-    expect(resultData).toBe('Customer not found');
+    expect(resultData).toBe('Activity not found');
   });
 });

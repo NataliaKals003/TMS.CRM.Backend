@@ -5,7 +5,7 @@ import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiRes
 import { validateAndParsePathParams } from '../../../lib/utils/apiValidations.js';
 import { BadRequestError } from '../../../models/api/responses/errors.js';
 import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
-import { selectCustomerByExternalUuid, softDeleteCustomerById } from '../../../repositories/customerRepository.js';
+import { selectActivityByExternalUuid, softDeleteActivityById } from '../../../repositories/activityRepository.js';
 
 export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyResultV2> {
   logger.info('Request received: ', request);
@@ -30,20 +30,20 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
 export async function persistRecords(validatedRequest: ValidatedAPIRequest<null>): Promise<void> {
   logger.info('Start - persistRecords');
 
-  // Validate the customer exists
-  const customerUuid = validatedRequest.pathParameter!;
-  const customer = await selectCustomerByExternalUuid(customerUuid);
+  // Validate the activity if exists
+  const activityUuid = validatedRequest.pathParameter!;
+  const activity = await selectActivityByExternalUuid(activityUuid);
 
-  if (!customer) {
-    throw new BadRequestError('Customer not found');
+  if (!activity) {
+    throw new BadRequestError('Activity not found');
   }
 
   // Soft delete the customer
-  await softDeleteCustomerById(customer.Id);
+  await softDeleteActivityById(activity.Id);
 }
 
 export async function formatResponseData(): Promise<DeleteSuccess<null>> {
   logger.info('Start - formatResponse');
 
-  return new DeleteSuccess<null>('Customer has been deleted');
+  return new DeleteSuccess<null>('Activity has been deleted');
 }

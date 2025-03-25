@@ -1,6 +1,6 @@
 import type { PaginatedResponse } from '../responses/pagination.js';
 
-/** The exposed User object */
+/** The exposed Customer object */
 export interface PublicCustomer {
   uuid: string; // Only exposes the uuid
   firstName: string;
@@ -11,20 +11,19 @@ export interface PublicCustomer {
   city: string;
   state: string;
   zipCode: string;
-  profileImageUrl: string;
+  customerImageUrl: string;
   createdOn: string;
   modifiedOn: string | null;
+  deletedOn: string | null;
 }
 
 // POST customer payloads
-export interface PostCustomerRequestPayload
-  extends Pick<PublicCustomer, 'firstName' | 'lastName' | 'email' | 'phone' | 'street' | 'city' | 'state' | 'zipCode' | 'profileImageUrl'> {}
+export interface PostCustomerRequestPayload extends Omit<PublicCustomer, 'uuid' | 'createdOn' | 'modifiedOn' | 'deletedOn'> {}
 
 export type PostCustomerResponsePayload = PublicCustomer;
 
 // PUT customer payloads
-export interface PutCustomerRequestPayload
-  extends Pick<PublicCustomer, 'firstName' | 'lastName' | 'email' | 'phone' | 'street' | 'city' | 'state' | 'zipCode' | 'profileImageUrl'> {}
+export interface PutCustomerRequestPayload extends Omit<PublicCustomer, 'uuid' | 'createdOn' | 'modifiedOn' | 'deletedOn'> {}
 
 export type PutCustomerResponsePayload = PublicCustomer;
 

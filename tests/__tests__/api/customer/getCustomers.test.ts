@@ -8,7 +8,7 @@ import { customerTableName } from '../../../../repositories/customerRepository.j
 import { CustomerEntryBuilder } from '../../../builders/customerEntryBuilder.js';
 import { handler } from '../../../../lambdas/api/customer/getCustomers.js';
 
-describe('API - Customer - GET', () => {
+describe('API - Customers - GET', () => {
   const tenantsGlobal: TenantEntry[] = [];
 
   beforeAll(async () => {
@@ -34,7 +34,7 @@ describe('API - Customer - GET', () => {
           .withCity('Wellington')
           .withState('Wellington Region')
           .withZipCode('6011')
-          .withProfileImageUrl('http/5678')
+          .withCustomerImageUrl('http/5678')
           .build(),
 
         CustomerEntryBuilder.make()
@@ -47,7 +47,7 @@ describe('API - Customer - GET', () => {
           .withCity('Christchurch')
           .withState('Canterbury')
           .withZipCode('8013')
-          .withProfileImageUrl('http/9101')
+          .withCustomerImageUrl('http/9101')
           .build(),
 
         CustomerEntryBuilder.make()
@@ -60,7 +60,7 @@ describe('API - Customer - GET', () => {
           .withCity('Hamilton')
           .withState('Waikato')
           .withZipCode('3204')
-          .withProfileImageUrl('http/1121')
+          .withCustomerImageUrl('http/1121')
           .build(),
 
         CustomerEntryBuilder.make()
@@ -73,7 +73,7 @@ describe('API - Customer - GET', () => {
           .withCity('Dunedin')
           .withState('Otago')
           .withZipCode('9016')
-          .withProfileImageUrl('http/3141')
+          .withCustomerImageUrl('http/3141')
           .build(),
 
         CustomerEntryBuilder.make()
@@ -86,7 +86,7 @@ describe('API - Customer - GET', () => {
           .withCity('Tauranga')
           .withState('Bay of Plenty')
           .withZipCode('3110')
-          .withProfileImageUrl('http/5161')
+          .withCustomerImageUrl('http/5161')
           .build(),
 
         CustomerEntryBuilder.make()
@@ -99,7 +99,7 @@ describe('API - Customer - GET', () => {
           .withCity('Napier')
           .withState("Hawke's Bay")
           .withZipCode('4110')
-          .withProfileImageUrl('http/7181')
+          .withCustomerImageUrl('http/7181')
           .build(),
 
         CustomerEntryBuilder.make()
@@ -112,7 +112,7 @@ describe('API - Customer - GET', () => {
           .withCity('Palmerston North')
           .withState('Manawatu-Wanganui')
           .withZipCode('4410')
-          .withProfileImageUrl('http/9202')
+          .withCustomerImageUrl('http/9202')
           .build(),
 
         CustomerEntryBuilder.make()
@@ -125,7 +125,7 @@ describe('API - Customer - GET', () => {
           .withCity('Rotorua')
           .withState('Bay of Plenty')
           .withZipCode('3010')
-          .withProfileImageUrl('http/1223')
+          .withCustomerImageUrl('http/1223')
           .build(),
 
         CustomerEntryBuilder.make()
@@ -138,7 +138,7 @@ describe('API - Customer - GET', () => {
           .withCity('Invercargill')
           .withState('Southland')
           .withZipCode('9810')
-          .withProfileImageUrl('http/3245')
+          .withCustomerImageUrl('http/3245')
           .build(),
       ])
       .returning('Id');
@@ -155,7 +155,7 @@ describe('API - Customer - GET', () => {
           .withCity('Auckland')
           .withState('Auckland Region')
           .withZipCode('0632')
-          .withProfileImageUrl('http/1234')
+          .withCustomerImageUrl('http/1234')
           .build(),
       ])
       .returning('Id');

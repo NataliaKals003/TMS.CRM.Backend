@@ -14,7 +14,7 @@ describe('API - Customer - POST', () => {
       city: 'Anytown',
       state: 'CA',
       zipCode: '12345',
-      profileImageUrl: 'https://example.com/profile.jpg',
+      customerImageUrl: 'https://example.com/profile.jpg',
     };
 
     const event = APIGatewayProxyEventBuilder.make().withBody(payload).build();
@@ -36,7 +36,7 @@ describe('API - Customer - POST', () => {
     expect(resultData.city).toBe(payload.city);
     expect(resultData.state).toBe(payload.state);
     expect(resultData.zipCode).toBe(payload.zipCode);
-    expect(resultData.profileImageUrl).toBe(payload.profileImageUrl);
+    expect(resultData.customerImageUrl).toBe(payload.customerImageUrl);
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeNull();
 
@@ -60,6 +60,6 @@ describe('API - Customer - POST', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).errorMessage;
-    expect(resultData).toBe('Missing fields: lastName, email, phone, street, city, state, zipCode, profileImageUrl');
+    expect(resultData).toBe('Missing fields: lastName, email, phone, street, city, state, zipCode, customerImageUrl');
   });
 });

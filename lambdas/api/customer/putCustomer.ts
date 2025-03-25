@@ -4,9 +4,7 @@ import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
 import { PersistSuccess } from '../../../models/api/responses/success.js';
 import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiResponseFormatters.js';
 import { validateAndParseBody, validateAndParsePathParams } from '../../../lib/utils/apiValidations.js';
-import { selectUserByExternalUuid, selectUserById, updateUser } from '../../../repositories/userRepository.js';
 import { BadRequestError, InternalError } from '../../../models/api/responses/errors.js';
-import { UserEntry } from '../../../models/database/userEntry.js';
 import { CustomerEntry } from '../../../models/database/customerEntry.js';
 import type { PutCustomerRequestPayload, PutCustomerResponsePayload } from '../../../models/api/payloads/customer.js';
 import { selectCustomerByExternalUuid, selectCustomerById, updateCustomer } from '../../../repositories/customerRepository.js';
@@ -33,7 +31,7 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
     'city',
     'state',
     'zipCode',
-    'profileImageUrl',
+    'customerImageUrl',
   ]);
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 

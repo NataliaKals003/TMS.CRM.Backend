@@ -1,4 +1,4 @@
-export interface ValidatedAPIRequest<T, Q = null> {
+export interface ValidatedAPIRequest<T, Q = Record<string, unknown>> {
   userId: string | null;
   tenantId: number | null;
   payload: T;

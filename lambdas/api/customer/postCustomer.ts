@@ -31,7 +31,7 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
     'city',
     'state',
     'zipCode',
-    'profileImageUrl',
+    'customerImageUrl',
   ]);
 
   // TODO: Pull tenantId and userId from the token

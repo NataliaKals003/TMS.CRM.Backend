@@ -1,0 +1,68 @@
+import type { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
+import { logger } from '../../../lib/utils/logger.js';
+import { PersistSuccess } from '../../../models/api/responses/success.js';
+import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiResponseFormatters.js';
+import { validateAndParseBody } from '../../../lib/utils/apiValidations.js';
+import { InternalError } from '../../../models/api/responses/errors.js';
+import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
+import type { PostDealRequestPayload, PostDealResponsePayload } from '../../../models/api/payloads/deal.js';
+import { DealEntry } from '../../../models/database/dealEntry.js';
+import { insertDeal, selectDealById } from '../../../repositories/dealRepository.js';
+
+export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyStructuredResultV2> {
+  logger.info('Request received: ', request);
+
+  return validateRequest(request)
+    .then(persistRecords)
+    .then(formatResponseData)
+    .then((response) => formatOkResponse(response))
+    .catch((error) => formatErrorResponse(error));
+}
+
+async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<ValidatedAPIRequest<PostDealRequestPayload>> {
+  logger.info('Start - validateRequest');
+
+  const parsedRequestBody = validateAndParseBody<PostDealRequestPayload>(request, [
+    'price',
+    'street',
+    'city',
+    'state',
+    'zipCode',
+    'roomArea',
+    'numberOfPeople',
+    'appointmentDate',
+    'progress',
+    'specialInstructions',
+    'roomAccess',
+    'dealImageUrl',
+    'customerUuid',
+  ]);
+
+  // TODO: Pull tenantId and userId from the token
+
+  return { tenantId: null, userId: null, payload: parsedRequestBody };
+}
+
+export async function persistRecords(validatedRequest: ValidatedAPIRequest<PostDealRequestPayload>): Promise<number> {
+  logger.info('Start - persistRecords');
+
+  const mappedDeal: Partial<DealEntry> = await DealEntry.fromPostRequestPayload(validatedRequest.payload);
+  const dealId = await insertDeal(mappedDeal);
+  // TODO: Create a link between the deal and the customer
+
+  return dealId;
+}
+
+export async function formatResponseData(dealId: number): Promise<PersistSuccess<PostDealResponsePayload>> {
+  logger.info('Start - formatResponse');
+
+  const deal = await selectDealById(dealId);
+
+  if (!deal) {
+    throw new InternalError('Deal not found');
+  }
+
+  const responsePayload = deal.toPublic();
+
+  return new PersistSuccess<PostDealResponsePayload>('Deal has been created', await responsePayload);
+}
