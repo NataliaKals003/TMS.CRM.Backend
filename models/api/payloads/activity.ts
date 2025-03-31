@@ -3,7 +3,7 @@ import type { PaginatedResponse } from '../responses/pagination.js';
 /** The exposed Activity object */
 export interface PublicActivity {
   uuid: string; // Only exposes the uuid
-  dealId: String;
+  dealUuid: string;
   description: string;
   activityDate: string;
   activityImageUrl: string;
@@ -13,16 +13,14 @@ export interface PublicActivity {
 }
 
 // POST activity payloads
-export interface PostActivityRequestPayload extends Omit<PublicActivity, 'uuid' | 'dealId' | 'createdOn' | 'modifiedOn' | 'deletedOn'> {
+export interface PostActivityRequestPayload extends Omit<PublicActivity, 'uuid' | 'createdOn' | 'modifiedOn' | 'deletedOn'> {
   dealUuid: string;
 }
 
 export type PostActivityResponsePayload = PublicActivity;
 
 // PUT activity payloads
-export interface PutActivityRequestPayload extends Omit<PublicActivity, 'uuid' | 'dealId' | 'createdOn' | 'modifiedOn' | 'deletedOn'> {
-  dealUuid: string;
-}
+export interface PutActivityRequestPayload extends Omit<PublicActivity, 'uuid' | 'dealUuid' | 'createdOn' | 'modifiedOn' | 'deletedOn'> {}
 
 export type PutActivityResponsePayload = PublicActivity;
 
@@ -36,5 +34,4 @@ export interface GetActivityListFilter {
   limit: number;
   offset: number;
   tenantId: number; // TODO: Remove once the tenant is pulled from the token
-  dealId: number;
 }

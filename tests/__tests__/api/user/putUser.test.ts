@@ -83,7 +83,12 @@ describe('API - User - PUT', () => {
     };
 
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters(payload).withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withBody(payload)
+      .withPathParameters({
+        uuid: usersGlobal[0].ExternalUuid,
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

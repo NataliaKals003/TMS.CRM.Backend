@@ -42,7 +42,7 @@ export async function up(knex) {
       table.string('City', 100);
       table.string('State', 50);
       table.string('ZipCode', 20);
-      table.string('CustomerImageUrl', 255);
+      table.string('ImageUrl', 255);
       table.timestamp('CreatedOn').defaultTo(knex.fn.now()).notNullable();
       table.timestamp('ModifiedOn');
       table.timestamp('DeletedOn');
@@ -52,11 +52,11 @@ export async function up(knex) {
       table.uuid('ExternalUuid').unique().notNullable().defaultTo(knex.raw('gen_random_uuid()'));
       table.integer('TenantId').references('Id').inTable('Tenant').onDelete('CASCADE');
       table.integer('CustomerId').references('Id').inTable('Customer').onDelete('CASCADE');
-      table.string('DealImageUrl', 255);
-      table.string('Street', 255);
-      table.string('City', 100);
-      table.string('State', 50);
-      table.string('ZipCode', 20);
+      table.text('ImageUrl', 255);
+      table.text('Street', 255);
+      table.text('City', 100);
+      table.text('State', 50);
+      table.text('ZipCode', 20);
       table.decimal('RoomArea', 8, 2);
       table.decimal('Price', 10, 2);
       table.integer('NumberOfPeople');
@@ -86,7 +86,7 @@ export async function up(knex) {
       table.integer('DealId').references('Id').inTable('Deal').onDelete('CASCADE');
       table.text('Description');
       table.timestamp('ActivityDate').notNullable();
-      table.string('ActivityImageUrl', 255);
+      table.string('ImageUrl', 255);
       table.timestamp('CreatedOn').defaultTo(knex.fn.now()).notNullable();
       table.timestamp('ModifiedOn');
       table.timestamp('DeletedOn');

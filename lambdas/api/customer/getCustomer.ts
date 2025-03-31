@@ -5,7 +5,6 @@ import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiRes
 import { validateAndParsePathParams } from '../../../lib/utils/apiValidations.js';
 import { selectCustomerByExternalUuid } from '../../../repositories/customerRepository.js';
 import { BadRequestError } from '../../../models/api/responses/errors.js';
-import type { GetUserResponsePayload } from '../../../models/api/payloads/user.js';
 import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
 import type { CustomerEntry } from '../../../models/database/customerEntry.js';
 import type { GetCustomerResponsePayload } from '../../../models/api/payloads/customer.js';
@@ -25,9 +24,14 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
 
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
+  const customerUuid = parsedPathParameter.uuid;
+  if (!customerUuid) {
+    throw new BadRequestError('Missing path parameters: uuid');
+  }
+
   // TODO: Pull tenantId and userId from the token
 
-  return { tenantId: null, userId: null, payload: null, pathParameter: parsedPathParameter.uuid };
+  return { tenantId: null, userId: null, payload: null, pathParameter: customerUuid };
 }
 
 export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>): Promise<CustomerEntry> {

@@ -5,13 +5,13 @@ import { randomUUID } from 'crypto';
 import type { CustomerEntry } from '../../../../models/database/customerEntry.js';
 import { customerTableName } from '../../../../repositories/customerRepository.js';
 import { CustomerEntryBuilder } from '../../../builders/customerEntryBuilder.js';
-import { handler } from '../../../../lambdas/api/customer/deleteCustomer.js';
 import { DealProgress, RoomAccess, type DealEntry } from '../../../../models/database/dealEntry.js';
 import { dealTableName, selectDealByExternalUuid } from '../../../../repositories/dealRepository.js';
 import { DealEntryBuilder } from '../../../builders/dealEntryBuilder.js';
 import type { TenantEntry } from '../../../../models/database/tenantEntry.js';
 import { tenantTableName } from '../../../../repositories/tenantRepository.js';
 import { TenantEntryBuilder } from '../../../builders/tenantEntryBuilder.js';
+import { handler } from '../../../../lambdas/api/deal/deleteDeal.js';
 
 describe('API - Deal - DELETE', () => {
   const tenantsGlobal: TenantEntry[] = [];
@@ -45,15 +45,15 @@ describe('API - Deal - DELETE', () => {
     const deal = await knexClient(dealTableName)
       .insert(
         DealEntryBuilder.make()
-          .withCustomerId(String(customersGlobal[0].Id))
-          .withPrice('100')
+          .withCustomerId(customersGlobal[0].Id)
+          .withPrice(100)
           .withStreet('202/3 Rose Garden Lane')
           .withCity('Auckland')
           .withState('Auckland Region')
           .withZipCode('0632')
           .withDealImageUrl('http/1234')
-          .withRoomArea('100')
-          .withNumberOfPeople('2')
+          .withRoomArea(100)
+          .withNumberOfPeople(2)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.InProgress)
           .withRoomAccess(RoomAccess.KeysWithDoorman)

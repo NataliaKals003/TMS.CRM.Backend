@@ -1,14 +1,14 @@
 import type { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyResultV2 } from 'aws-lambda';
 import { logger } from '../../../lib/utils/logger.js';
 import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
-import { FetchSuccess, PersistSuccess } from '../../../models/api/responses/success.js';
+import { FetchSuccess } from '../../../models/api/responses/success.js';
 import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiResponseFormatters.js';
 import { validateAndParseQueryParams } from '../../../lib/utils/apiValidations.js';
 import { QueryParamDataType } from '../../../models/api/validations.js';
 import type { PaginatedResponse } from '../../../models/api/responses/pagination.js';
-import type { ActivityEntry } from '../../../models/database/activityEntry.js';
 import { selectActivities } from '../../../repositories/activityRepository.js';
 import type { GetActivityListFilter, GetActivityListResponsePayload, PublicActivity } from '../../../models/api/payloads/activity.js';
+import type { ExtendedActivityEntry } from '../../../models/database/activityEntry.js';
 
 export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyResultV2> {
   logger.info('Request received: ', request);
@@ -34,21 +34,25 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   return { tenantId: eventQueryParams.tenantId, userId: null, payload: null, queryParameters: eventQueryParams };
 }
 
-export async function queryRecords(validatedRequest: ValidatedAPIRequest<null, GetActivityListFilter>): Promise<PaginatedResponse<ActivityEntry>> {
+export async function queryRecords(
+  validatedRequest: ValidatedAPIRequest<null, GetActivityListFilter>,
+): Promise<PaginatedResponse<ExtendedActivityEntry>> {
   logger.info('Start - queryRecords');
 
   const { limit, offset } = validatedRequest.queryParameters!;
 
-  const queryResult: PaginatedResponse<ActivityEntry> = await selectActivities(limit, offset, validatedRequest.tenantId);
+  const queryResult: PaginatedResponse<ExtendedActivityEntry> = await selectActivities(limit, offset, validatedRequest.tenantId);
 
   return queryResult;
 }
 
-export async function formatResponseData(queryResult: PaginatedResponse<ActivityEntry>): Promise<FetchSuccess<GetActivityListResponsePayload>> {
+export async function formatResponseData(
+  queryResult: PaginatedResponse<ExtendedActivityEntry>,
+): Promise<FetchSuccess<GetActivityListResponsePayload>> {
   logger.info('Start - formatResponse');
 
   const paginatedResponse: PaginatedResponse<PublicActivity> = {
-    items: queryResult.items.map((activity) => activity.toPublic()),
+    items: await Promise.all(queryResult.items.map((activity) => activity.toPublic())),
     total: queryResult.total,
   };
 

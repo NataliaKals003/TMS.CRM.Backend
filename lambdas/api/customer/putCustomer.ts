@@ -31,7 +31,6 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
     'city',
     'state',
     'zipCode',
-    'customerImageUrl',
   ]);
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 

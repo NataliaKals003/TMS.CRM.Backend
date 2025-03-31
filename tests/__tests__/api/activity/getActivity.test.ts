@@ -12,29 +12,51 @@ import { DealEntryBuilder } from '../../../builders/dealEntryBuilder.js';
 import { activityTableName } from '../../../../repositories/activityRepository.js';
 import { ActivityEntryBuilder } from '../../../builders/activityEntryBuilder.js';
 import { handler } from '../../../../lambdas/api/activity/getActivity.js';
+import { customerTableName } from '../../../../repositories/customerRepository.js';
+import { CustomerEntryBuilder } from '../../../builders/customerEntryBuilder.js';
+import type { CustomerEntry } from '../../../../models/database/customerEntry.js';
 
 describe('API - Activity - GET', () => {
   const tenantsGlobal: TenantEntry[] = [];
+  const customersGlobal: CustomerEntry[] = [];
   const dealsGlobal: DealEntry[] = [];
   const activitiesGlobal: ActivityEntry[] = [];
 
   beforeAll(async () => {
     const tenant = await knexClient(tenantTableName).insert(TenantEntryBuilder.make().withName('Tenant 1').build()).returning('*');
-
     tenantsGlobal.push(...tenant);
+
+    const customer = await knexClient(customerTableName)
+      .insert([
+        CustomerEntryBuilder.make()
+          .withTenantId(tenantsGlobal[0].Id)
+          .withFirstName('John')
+          .withLastName('Doe')
+          .withEmail('john.doe@example.com')
+          .withPhone('642103273576')
+          .withStreet('202/3 Rose Garden Lane')
+          .withCity('Auckland')
+          .withState('Auckland Region')
+          .withZipCode('0632')
+          .withCustomerImageUrl('http/1234')
+          .build(),
+      ])
+      .returning('*');
+
+    customersGlobal.push(...customer);
 
     const deal = await knexClient(dealTableName)
       .insert(
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId('2')
+          .withCustomerId(customersGlobal[0].Id)
           .withStreet('123 Main St')
           .withCity('New York')
           .withState('NY')
           .withZipCode('10001')
-          .withRoomArea('500')
-          .withPrice('1200')
-          .withNumberOfPeople('2')
+          .withRoomArea(500)
+          .withPrice(1200)
+          .withNumberOfPeople(2)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.InProgress)
           .withSpecialInstructions('Handle with care')
@@ -43,7 +65,6 @@ describe('API - Activity - GET', () => {
           .build(),
       )
       .returning('*');
-
     dealsGlobal.push(...deal);
 
     const activity = await knexClient(activityTableName)
@@ -55,6 +76,7 @@ describe('API - Activity - GET', () => {
           .withActivityDate(new Date().toISOString())
           .withActivityImageUrl('https://example.com/activity.jpg')
           .build(),
+
         ActivityEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
@@ -83,11 +105,11 @@ describe('API - Activity - GET', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).data;
+    expect(resultData.dealUuid).toBe(dealsGlobal[0].ExternalUuid);
+    expect(resultData.description).toBe(activitiesGlobal[0].Description);
+    expect(new Date(resultData.activityDate).getTime()).toBeCloseTo(new Date(activitiesGlobal[0].ActivityDate).getTime());
+    expect(resultData.activityImageUrl).toBe(activitiesGlobal[0].ImageUrl);
     expect(resultData.uuid).toBeDefined();
-    expect(resultData.dealId).toBeDefined();
-    expect(resultData.description).toBeDefined();
-    expect(resultData.activityDate).toBeDefined();
-    expect(resultData.activityImageUrl).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeDefined();
   });

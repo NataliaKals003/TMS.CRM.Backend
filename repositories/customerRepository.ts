@@ -2,7 +2,6 @@ import { knexClient } from '../lib/utils/knexClient.js';
 import { logger } from '../lib/utils/logger.js';
 import type { PaginatedResponse } from '../models/api/responses/pagination.js';
 import { CustomerEntry } from '../models/database/customerEntry.js';
-import { userTenantTableName } from './userTenantRepository.js';
 
 export const customerTableName = 'Customer';
 
@@ -50,10 +49,10 @@ export async function selectCustomers(limit: number, offset: number, tenantId: n
 }
 
 /** Update the Customer */
-export async function updateCustomer(customerId: number, user: Partial<CustomerEntry>): Promise<void> {
-  await knexClient(customerTableName).update(user).where('Id', customerId);
+export async function updateCustomer(customerId: number, customer: Partial<CustomerEntry>): Promise<void> {
+  await knexClient(customerTableName).update(customer).where('Id', customerId);
 
-  logger.info(`Successfully updated User. Id: ${customerId}`);
+  logger.info(`Successfully updated Customer. Id: ${customerId}`);
 }
 
 //**Deelete Customer */

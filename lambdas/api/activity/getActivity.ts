@@ -6,7 +6,7 @@ import { validateAndParsePathParams } from '../../../lib/utils/apiValidations.js
 import { BadRequestError } from '../../../models/api/responses/errors.js';
 import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
 import { selectActivityByExternalUuid } from '../../../repositories/activityRepository.js';
-import type { ActivityEntry } from '../../../models/database/activityEntry.js';
+import type { ExtendedActivityEntry } from '../../../models/database/activityEntry.js';
 import type { GetActivityResponsePayload } from '../../../models/api/payloads/activity.js';
 
 export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyStructuredResultV2> {
@@ -24,17 +24,16 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
 
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
-  const dealId = request.queryStringParameters?.dealId;
-  if (!dealId) {
-    throw new BadRequestError('Missing query parameter: dealId');
+  const activityUuid = parsedPathParameter.uuid;
+  if (!activityUuid) {
+    throw new BadRequestError('Missing query parameters: uuid');
   }
 
   // TODO: Pull tenantId and userId from the token
-
-  return { tenantId: null, userId: null, payload: null, pathParameter: parsedPathParameter.uuid, queryParameters: { dealId } };
+  return { tenantId: null, userId: null, payload: null, pathParameter: activityUuid };
 }
 
-export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>): Promise<ActivityEntry> {
+export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>): Promise<ExtendedActivityEntry> {
   logger.info('Start - queryRecords');
 
   // Validate the activity if exists
@@ -48,7 +47,7 @@ export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>):
   return activity;
 }
 
-export async function formatResponseData(activity: ActivityEntry): Promise<PersistSuccess<GetActivityResponsePayload>> {
+export async function formatResponseData(activity: ExtendedActivityEntry): Promise<PersistSuccess<GetActivityResponsePayload>> {
   logger.info('Start - formatResponse');
 
   return new FetchSuccess<GetActivityResponsePayload>('Successfully fetched activity', activity.toPublic());

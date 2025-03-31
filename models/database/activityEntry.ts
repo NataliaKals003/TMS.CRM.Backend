@@ -1,16 +1,22 @@
 import type { PostActivityRequestPayload, PublicActivity, PutActivityRequestPayload } from '../api/payloads/activity.js';
+import type { DealEntry } from './dealEntry.js';
 
 export interface ActivityEntry {
   Id: number;
   ExternalUuid: string;
   TenantId: number;
-  DealId: string;
+  DealId: number;
   Description: string;
   ActivityDate: string;
-  ActivityImageUrl: string;
+  ImageUrl: string;
   CreatedOn: string;
   ModifiedOn: string | null;
   DeletedOn: string | null;
+}
+
+/** Extended ActivityEntry with Deal information */
+export interface ExtendedActivityEntry extends ActivityEntry {
+  Deal: Pick<DealEntry, 'ExternalUuid'>;
 }
 
 export class ActivityEntry implements ActivityEntry {
@@ -21,18 +27,19 @@ export class ActivityEntry implements ActivityEntry {
     this.DealId = data.DealId;
     this.Description = data.Description;
     this.ActivityDate = data.ActivityDate;
-    this.ActivityImageUrl = data.ActivityImageUrl;
+    this.ImageUrl = data.ImageUrl;
     this.CreatedOn = data.CreatedOn;
     this.ModifiedOn = data.ModifiedOn;
     this.DeletedOn = data.DeletedOn;
   }
 
   /** Convert the PostActivityRequestPayload to a Partial<ActivityEntry> */
-  public static fromPostRequestPayload(payload: PostActivityRequestPayload): Partial<ActivityEntry> {
+  public static fromPostRequestPayload(payload: PostActivityRequestPayload, dealId: number): Partial<ActivityEntry> {
     return {
       Description: payload.description,
       ActivityDate: payload.activityDate,
-      ActivityImageUrl: payload.activityImageUrl,
+      ImageUrl: payload.activityImageUrl,
+      DealId: dealId,
     };
   }
 
@@ -41,22 +48,38 @@ export class ActivityEntry implements ActivityEntry {
     return {
       Description: payload.description,
       ActivityDate: payload.activityDate,
-      ActivityImageUrl: payload.activityImageUrl,
+      ImageUrl: payload.activityImageUrl,
       ModifiedOn: new Date().toISOString(),
     };
   }
+}
 
-  /** Convert the ActivityEntry to a PublicActivity */
+export class ExtendedActivityEntry implements ExtendedActivityEntry {
+  public constructor(data: Record<string, any>) {
+    this.Id = data.Id;
+    this.ExternalUuid = data.ExternalUuid;
+    this.TenantId = data.TenantId;
+    this.DealId = data.DealId;
+    this.Deal = { ExternalUuid: data.DealExternalUuid };
+    this.Description = data.Description;
+    this.ActivityDate = data.ActivityDate;
+    this.ImageUrl = data.ImageUrl;
+    this.CreatedOn = data.CreatedOn;
+    this.ModifiedOn = data.ModifiedOn;
+    this.DeletedOn = data.DeletedOn;
+  }
+
+  /** Convert the ExtendedActivityEntry to a PublicActivity */
   public toPublic(): PublicActivity {
     return {
       uuid: this.ExternalUuid,
-      dealId: this.DealId,
+      dealUuid: this.Deal.ExternalUuid,
       description: this.Description,
       activityDate: this.ActivityDate,
-      activityImageUrl: this.ActivityImageUrl,
+      activityImageUrl: this.ImageUrl,
       createdOn: this.CreatedOn,
       modifiedOn: this.ModifiedOn ?? null,
-      deletedOn: this.ModifiedOn ?? null,
+      deletedOn: this.DeletedOn ?? null,
     };
   }
 }

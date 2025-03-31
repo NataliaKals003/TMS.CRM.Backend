@@ -22,8 +22,8 @@ export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer):
 async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<ValidatedAPIRequest<PutUserRequestPayload>> {
   logger.info('Start - validateRequest');
 
-  const parsedRequestBody = validateAndParseBody<PutUserRequestPayload>(request, ['firstName', 'lastName', 'email']);
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
+  const parsedRequestBody = validateAndParseBody<PutUserRequestPayload>(request, ['firstName', 'lastName', 'email']);
 
   // TODO: Pull tenantId and userId from the token
 

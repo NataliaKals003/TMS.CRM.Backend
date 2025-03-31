@@ -6,11 +6,11 @@ import { tenantTableName } from '../../../../repositories/tenantRepository.js';
 import { TenantEntryBuilder } from '../../../builders/tenantEntryBuilder.js';
 import { customerTableName } from '../../../../repositories/customerRepository.js';
 import { CustomerEntryBuilder } from '../../../builders/customerEntryBuilder.js';
-import { handler } from '../../../../lambdas/api/customer/getCustomers.js';
 import type { CustomerEntry } from '../../../../models/database/customerEntry.js';
 import { DealProgress, RoomAccess } from '../../../../models/database/dealEntry.js';
 import { DealEntryBuilder } from '../../../builders/dealEntryBuilder.js';
 import { dealTableName } from '../../../../repositories/dealRepository.js';
+import { handler } from '../../../../lambdas/api/deal/getDeals.js';
 
 describe('API - Deals - GET', () => {
   const tenantsGlobal: TenantEntry[] = [];
@@ -18,7 +18,7 @@ describe('API - Deals - GET', () => {
 
   beforeAll(async () => {
     const tenant = await knexClient(tenantTableName)
-      .insert([TenantEntryBuilder.make().withName('Tenant 1').build()])
+      .insert([TenantEntryBuilder.make().withName('Tenant 1').build(), TenantEntryBuilder.make().withName('Tenant 2').build()])
       .returning('*');
     tenantsGlobal.push(...tenant);
 
@@ -49,23 +49,36 @@ describe('API - Deals - GET', () => {
           .withZipCode('1010')
           .withCustomerImageUrl('http/6789')
           .build(),
+
+        CustomerEntryBuilder.make()
+          .withTenantId(tenantsGlobal[0].Id)
+          .withFirstName('Sofi')
+          .withLastName('Smith')
+          .withEmail('sofi.smith@example.com')
+          .withPhone('642103273578')
+          .withStreet('202 Oak Avenue')
+          .withCity('Auckland')
+          .withState('Auckland Region')
+          .withZipCode('1010')
+          .withCustomerImageUrl('http/6789')
+          .build(),
       ])
-      .returning('Id');
+      .returning('*');
     customersGlobal.push(...customer);
 
     const deal = await knexClient(dealTableName)
       .insert([
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId(String(customersGlobal[0]))
-          .withPrice('150')
+          .withCustomerId(customersGlobal[0].Id)
+          .withPrice(150)
           .withStreet('202 Pine Street')
           .withCity('Auckland')
           .withState('Auckland Region')
           .withZipCode('1010')
           .withDealImageUrl('http/1234')
-          .withRoomArea('120')
-          .withNumberOfPeople('3')
+          .withRoomArea(120)
+          .withNumberOfPeople(3)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.Closed)
           .withRoomAccess(RoomAccess.KeysWithDoorman)
@@ -73,15 +86,15 @@ describe('API - Deals - GET', () => {
 
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId(String(customersGlobal[0]))
-          .withPrice('200')
+          .withCustomerId(customersGlobal[0].Id)
+          .withPrice(200)
           .withStreet('303 Oak Street')
           .withCity('Christchurch')
           .withState('Canterbury Region')
           .withZipCode('8011')
           .withDealImageUrl('http/2345')
-          .withRoomArea('140')
-          .withNumberOfPeople('4')
+          .withRoomArea(140)
+          .withNumberOfPeople(4)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.InProgress)
           .withRoomAccess(RoomAccess.KeysWithDoorman)
@@ -89,15 +102,15 @@ describe('API - Deals - GET', () => {
 
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId(String(customersGlobal[0]))
-          .withPrice('250')
+          .withCustomerId(customersGlobal[0].Id)
+          .withPrice(250)
           .withStreet('404 Maple Street')
           .withCity('Hamilton')
           .withState('Waikato Region')
           .withZipCode('3204')
           .withDealImageUrl('http/3456')
-          .withRoomArea('160')
-          .withNumberOfPeople('5')
+          .withRoomArea(160)
+          .withNumberOfPeople(5)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.Pending)
           .withRoomAccess(RoomAccess.KeysWithDoorman)
@@ -105,15 +118,15 @@ describe('API - Deals - GET', () => {
 
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId(String(customersGlobal[0]))
-          .withPrice('300')
+          .withCustomerId(customersGlobal[0].Id)
+          .withPrice(300)
           .withStreet('505 Birch Street')
           .withCity('Dunedin')
           .withState('Otago Region')
           .withZipCode('9016')
           .withDealImageUrl('http/4567')
-          .withRoomArea('180')
-          .withNumberOfPeople('6')
+          .withRoomArea(180)
+          .withNumberOfPeople(6)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.InProgress)
           .withRoomAccess(RoomAccess.KeysWithDoorman)
@@ -121,15 +134,15 @@ describe('API - Deals - GET', () => {
 
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId(String(customersGlobal[0]))
-          .withPrice('350')
+          .withCustomerId(customersGlobal[0].Id)
+          .withPrice(350)
           .withStreet('606 Cedar Street')
           .withCity('Tauranga')
           .withState('Bay of Plenty Region')
           .withZipCode('3110')
           .withDealImageUrl('http/5678')
-          .withRoomArea('200')
-          .withNumberOfPeople('7')
+          .withRoomArea(200)
+          .withNumberOfPeople(7)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.InProgress)
           .withRoomAccess(RoomAccess.KeysWithDoorman)
@@ -137,15 +150,15 @@ describe('API - Deals - GET', () => {
 
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId(String(customersGlobal[0]))
-          .withPrice('400')
+          .withCustomerId(customersGlobal[0].Id)
+          .withPrice(400)
           .withStreet('707 Walnut Street')
           .withCity('Napier')
           .withState("Hawke's Bay Region")
           .withZipCode('4110')
           .withDealImageUrl('http/6789')
-          .withRoomArea('220')
-          .withNumberOfPeople('8')
+          .withRoomArea(220)
+          .withNumberOfPeople(8)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.Pending)
           .withRoomAccess(RoomAccess.KeysWithDoorman)
@@ -158,15 +171,15 @@ describe('API - Deals - GET', () => {
       .insert([
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId(String(customersGlobal[1]))
-          .withPrice('500')
+          .withCustomerId(customersGlobal[1].Id)
+          .withPrice(500)
           .withStreet('808 Spruce Street')
           .withCity('Queenstown')
           .withState('Otago Region')
           .withZipCode('9300')
           .withDealImageUrl('http/7890')
-          .withRoomArea('250')
-          .withNumberOfPeople('10')
+          .withRoomArea(250)
+          .withNumberOfPeople(10)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.Closed)
           .withRoomAccess(RoomAccess.KeysWithDoorman)
@@ -181,7 +194,6 @@ describe('API - Deals - GET', () => {
         limit: '5',
         offset: '0',
         tenantId: tenantsGlobal[0].Id.toString(), // TODO: Remove once the tenant is pulled from the token
-        customerId: customersGlobal[0].Id.toString(),
       })
       .build();
 
@@ -195,7 +207,7 @@ describe('API - Deals - GET', () => {
     const resultData = JSON.parse(res.body!).data;
     expect(resultData.items).toBeDefined();
     expect(resultData.items.length).toBe(5);
-    expect(resultData.total).toBe(9);
+    expect(resultData.total).toBe(7);
   });
 
   it('Success - Should get deals with pagination using offset', async () => {
@@ -204,7 +216,6 @@ describe('API - Deals - GET', () => {
         limit: '5',
         offset: '5',
         tenantId: tenantsGlobal[0].Id.toString(), // TODO: Remove once the tenant is pulled from the token
-        customerId: customersGlobal[0].Id.toString(),
       })
       .build();
 
@@ -217,17 +228,16 @@ describe('API - Deals - GET', () => {
 
     const resultData = JSON.parse(res.body!).data;
     expect(resultData.items).toBeDefined();
-    expect(resultData.items.length).toBe(4); // Exclude the first 5 deals
-    expect(resultData.total).toBe(9); // Total number of deals should still be 9
+    expect(resultData.items.length).toBe(2); // Exclude the first 5 deals
+    expect(resultData.total).toBe(7); // Total number of deals should still be 6
   });
 
-  it('Success - Should return 0 deals if the customer has no deals', async () => {
+  it('Success - Should return 0 deals if the tenant has no deals', async () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withQueryStringParameters({
         limit: '5',
         offset: '0',
-        tenantId: tenantsGlobal[2].Id.toString(), // TODO: Remove once the tenant is pulled from the token
-        customerId: customersGlobal[1].Id.toString(),
+        tenantId: tenantsGlobal[1].Id.toString(), // TODO: Remove once the tenant is pulled from the token
       })
       .build();
 

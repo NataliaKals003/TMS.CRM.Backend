@@ -22,7 +22,7 @@ export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer):
 async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<ValidatedAPIRequest<PutActivityRequestPayload>> {
   logger.info('Start - validateRequest');
 
-  const parsedRequestBody = validateAndParseBody<PutActivityRequestPayload>(request, ['description', 'activityDate', 'activityImageUrl']);
+  const parsedRequestBody = validateAndParseBody<PutActivityRequestPayload>(request, ['description', 'activityDate']);
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
   // TODO: Pull tenantId and userId from the token
@@ -57,5 +57,5 @@ export async function formatResponseData(activityId: number): Promise<PersistSuc
     throw new InternalError('Activity not found');
   }
 
-  return new PersistSuccess<PutActivityResponsePayload>('Activity has been updated', activity.toPublic());
+  return new PersistSuccess<PutActivityResponsePayload>('Activity has been updated', await activity.toPublic());
 }

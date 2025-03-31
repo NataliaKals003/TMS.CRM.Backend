@@ -49,6 +49,8 @@ describe('API - Customer - POST', () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withBody({
         firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
       })
       .build();
 
@@ -60,6 +62,6 @@ describe('API - Customer - POST', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).errorMessage;
-    expect(resultData).toBe('Missing fields: lastName, email, phone, street, city, state, zipCode, customerImageUrl');
+    expect(resultData).toBe('Missing fields: phone, street, city, state, zipCode');
   });
 });

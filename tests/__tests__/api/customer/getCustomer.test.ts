@@ -74,7 +74,7 @@ describe('API - Customer - GET', () => {
     expect(resultData.city).toBe(customersGlobal[0].City);
     expect(resultData.state).toBe(customersGlobal[0].State);
     expect(resultData.zipCode).toBe(customersGlobal[0].ZipCode);
-    expect(resultData.customerImageUrl).toBe(customersGlobal[0].CustomerImageUrl);
+    expect(resultData.customerImageUrl).toBe(customersGlobal[0].ImageUrl);
     expect(resultData.uuid).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeDefined();

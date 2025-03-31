@@ -17,7 +17,7 @@ describe('API - Activities - GET', () => {
 
   beforeAll(async () => {
     const tenant = await knexClient(tenantTableName)
-      .insert([TenantEntryBuilder.make().withName('Tenant 1').build()])
+      .insert([TenantEntryBuilder.make().withName('Tenant 1').build(), TenantEntryBuilder.make().withName('Tenant 2').build()])
       .returning('*');
     tenantsGlobal.push(...tenant);
 
@@ -26,14 +26,14 @@ describe('API - Activities - GET', () => {
       .insert([
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId('1')
+          .withCustomerId(1)
           .withStreet('123 Main St')
           .withCity('New York')
           .withState('NY')
           .withZipCode('10001')
-          .withRoomArea('500')
-          .withPrice('1200')
-          .withNumberOfPeople('2')
+          .withRoomArea(100)
+          .withPrice(1200)
+          .withNumberOfPeople(2)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.InProgress)
           .withSpecialInstructions('Handle with care')
@@ -43,14 +43,31 @@ describe('API - Activities - GET', () => {
 
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId('2')
+          .withCustomerId(2)
           .withStreet('123 Main St')
           .withCity('New York')
           .withState('NY')
           .withZipCode('10001')
-          .withRoomArea('500')
-          .withPrice('1200')
-          .withNumberOfPeople('2')
+          .withRoomArea(500)
+          .withPrice(1200)
+          .withNumberOfPeople(2)
+          .withAppointmentDate(new Date().toISOString())
+          .withProgress(DealProgress.InProgress)
+          .withSpecialInstructions('Handle with care')
+          .withRoomAccess(RoomAccess.KeysInLockbox)
+          .withDealImageUrl('https://example.com/image.jpg')
+          .build(),
+
+        DealEntryBuilder.make()
+          .withTenantId(tenantsGlobal[0].Id)
+          .withCustomerId(2)
+          .withStreet('123 Main St')
+          .withCity('New York')
+          .withState('NY')
+          .withZipCode('10001')
+          .withRoomArea(500)
+          .withPrice(1200)
+          .withNumberOfPeople(2)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.InProgress)
           .withSpecialInstructions('Handle with care')
@@ -137,7 +154,7 @@ describe('API - Activities - GET', () => {
           .withActivityImageUrl('http://example.com/image9.jpg')
           .build(),
       ])
-      .returning('Id');
+      .returning('*');
 
     await knexClient(activityTableName)
       .insert([
@@ -149,7 +166,7 @@ describe('API - Activities - GET', () => {
           .withActivityImageUrl('http://example.com/image9.jpg')
           .build(),
       ])
-      .returning('Id');
+      .returning('*');
   });
 
   it('Success - Should get activities with pagination', async () => {
@@ -158,7 +175,6 @@ describe('API - Activities - GET', () => {
         limit: '5',
         offset: '0',
         tenantId: tenantsGlobal[0].Id.toString(), // TODO: Remove once the tenant is pulled from the token
-        customerId: dealsGlobal[0].Id.toString(),
       })
       .build();
 
@@ -172,7 +188,7 @@ describe('API - Activities - GET', () => {
     const resultData = JSON.parse(res.body!).data;
     expect(resultData.items).toBeDefined();
     expect(resultData.items.length).toBe(5);
-    expect(resultData.total).toBe(9);
+    expect(resultData.total).toBe(10);
   });
 
   it('Success - Should get activities with pagination using offset', async () => {
@@ -181,7 +197,6 @@ describe('API - Activities - GET', () => {
         limit: '5',
         offset: '5',
         tenantId: tenantsGlobal[0].Id.toString(), // TODO: Remove once the tenant is pulled from the token
-        customerId: dealsGlobal[0].Id.toString(),
       })
       .build();
 
@@ -194,17 +209,16 @@ describe('API - Activities - GET', () => {
 
     const resultData = JSON.parse(res.body!).data;
     expect(resultData.items).toBeDefined();
-    expect(resultData.items.length).toBe(4); // Exclude the first 5 customers
-    expect(resultData.total).toBe(9); // Total number of customers should still be 9
+    expect(resultData.items.length).toBe(5); // Exclude the first 5 activities
+    expect(resultData.total).toBe(10);
   });
 
-  it('Success - Should return 0 activities if the deal has no activities', async () => {
+  it('Success - Should return 0 activities if the tenant has no activities', async () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withQueryStringParameters({
         limit: '5',
         offset: '0',
-        tenantId: tenantsGlobal[0].Id.toString(), // TODO: Remove once the tenant is pulled from the token
-        dealId: dealsGlobal[0].Id.toString(), // TODO: Remove once the tenant is pulled from the token
+        tenantId: tenantsGlobal[1].Id.toString(), // TODO: Remove once the tenant is pulled from the token
       })
       .build();
 

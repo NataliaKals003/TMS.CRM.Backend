@@ -47,7 +47,7 @@ describe('API - Customer - PUT', () => {
       city: customersGlobal[0].City,
       state: customersGlobal[0].State,
       zipCode: customersGlobal[0].ZipCode,
-      customerImageUrl: String(customersGlobal[0].CustomerImageUrl),
+      customerImageUrl: String(customersGlobal[0].ImageUrl),
     };
 
     const event = APIGatewayProxyEventBuilder.make()
@@ -95,7 +95,7 @@ describe('API - Customer - PUT', () => {
       city: customersGlobal[0].City,
       state: customersGlobal[0].State,
       zipCode: customersGlobal[0].ZipCode,
-      customerImageUrl: String(customersGlobal[0].CustomerImageUrl),
+      customerImageUrl: String(customersGlobal[0].ImageUrl),
     };
 
     // Event missing the uuid path parameter
@@ -123,7 +123,7 @@ describe('API - Customer - PUT', () => {
       // city: customersGlobal[0].City,
       // state: customersGlobal[0].State,
       // zipCode: customersGlobal[0].ZipCode,
-      customerImageUrl: String(customersGlobal[0].CustomerImageUrl),
+      customerImageUrl: String(customersGlobal[0].ImageUrl),
     };
 
     // Event missing the uuid path parameter

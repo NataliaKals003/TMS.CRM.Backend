@@ -16,7 +16,7 @@ export class ActivityEntryBuilder {
     return this;
   }
 
-  withDealId(value: string): this {
+  withDealId(value: number): this {
     this.activityEntry.DealId = value;
     return this;
   }
@@ -32,7 +32,7 @@ export class ActivityEntryBuilder {
   }
 
   withActivityImageUrl(value: string): this {
-    this.activityEntry.ActivityImageUrl = value;
+    this.activityEntry.ImageUrl = value;
     return this;
   }
 

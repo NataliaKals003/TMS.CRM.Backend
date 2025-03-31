@@ -24,14 +24,13 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
 
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
-  const customerId = request.queryStringParameters?.customerId;
-  if (!customerId) {
-    throw new BadRequestError('Missing query parameter: customerId');
+  const dealUuid = parsedPathParameter.uuid;
+  if (!dealUuid) {
+    throw new BadRequestError('Missing path parameters: uuid');
   }
 
   // TODO: Pull tenantId and userId from the token
-
-  return { tenantId: null, userId: null, payload: null, pathParameter: parsedPathParameter.uuid, queryParameters: { customerId } };
+  return { tenantId: null, userId: null, payload: null, pathParameter: dealUuid };
 }
 
 export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>): Promise<ExtendedDealEntry> {
@@ -51,5 +50,5 @@ export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>):
 export async function formatResponseData(deal: ExtendedDealEntry): Promise<PersistSuccess<GetDealResponsePayload>> {
   logger.info('Start - formatResponse');
 
-  return new FetchSuccess<GetDealResponsePayload>('Successfully fetched deal', await deal.toPublic());
+  return new FetchSuccess<GetDealResponsePayload>('Successfully fetched deal', deal.toPublic());
 }

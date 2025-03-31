@@ -38,30 +38,28 @@ describe('API - Deal - GET', () => {
           .withCustomerImageUrl('http/1234')
           .build(),
       ])
-      .returning('Id');
-
+      .returning('*');
     customersGlobal.push(...customer);
 
     const deal = await knexClient(dealTableName)
       .insert([
         DealEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withCustomerId(String(customersGlobal[0].Id))
-          .withPrice('100')
+          .withCustomerId(customersGlobal[0].Id)
+          .withPrice(100)
           .withStreet('202/3 Rose Garden Lane')
           .withCity('Auckland')
           .withState('Auckland Region')
           .withZipCode('0632')
           .withDealImageUrl('http/1234')
-          .withRoomArea('100')
-          .withNumberOfPeople('2')
+          .withRoomArea(100)
+          .withNumberOfPeople(2)
           .withAppointmentDate(new Date().toISOString())
           .withProgress(DealProgress.InProgress)
           .withRoomAccess(RoomAccess.KeysWithDoorman)
           .withSpecialInstructions('Special Instructions')
           .build(),
       ])
-
       .returning('*');
     dealsGlobal.push(...deal);
   });
@@ -81,16 +79,21 @@ describe('API - Deal - GET', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).data;
-    expect(resultData.customerId).toBe(customersGlobal[0].Id);
+    expect(resultData.customer.uuid).toBe(customersGlobal[0].ExternalUuid);
+    expect(resultData.customer.customerImageUrl).toBe(customersGlobal[0].ImageUrl);
+    expect(resultData.customer.firstName).toBe(customersGlobal[0].FirstName);
+    expect(resultData.customer.lastName).toBe(customersGlobal[0].LastName);
+    expect(resultData.customer.email).toBe(customersGlobal[0].Email);
+    expect(resultData.customer.phone).toBe(customersGlobal[0].Phone);
     expect(resultData.street).toBe(dealsGlobal[0].Street);
     expect(resultData.city).toBe(dealsGlobal[0].City);
     expect(resultData.state).toBe(dealsGlobal[0].State);
     expect(resultData.zipCode).toBe(dealsGlobal[0].ZipCode);
-    expect(resultData.dealImageUrl).toBe(dealsGlobal[0].DealImageUrl);
+    expect(resultData.dealImageUrl).toBe(dealsGlobal[0].ImageUrl);
     expect(resultData.roomArea).toBe(dealsGlobal[0].RoomArea);
     expect(resultData.price).toBe(dealsGlobal[0].Price);
     expect(resultData.numberOfPeople).toBe(dealsGlobal[0].NumberOfPeople);
-    expect(resultData.appointmentDate).toBe(dealsGlobal[0].AppointmentDate);
+    expect(new Date(resultData.appointmentDate).getTime()).toBeCloseTo(new Date(dealsGlobal[0].AppointmentDate).getTime());
     expect(resultData.progress).toBe(dealsGlobal[0].Progress);
     expect(resultData.roomAccess).toBe(dealsGlobal[0].RoomAccess);
     expect(resultData.specialInstructions).toBe(dealsGlobal[0].SpecialInstructions);

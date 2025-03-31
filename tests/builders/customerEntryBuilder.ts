@@ -57,7 +57,7 @@ export class CustomerEntryBuilder {
   }
 
   withCustomerImageUrl(value: string): this {
-    this.customerEntry.CustomerImageUrl = value;
+    this.customerEntry.ImageUrl = value;
     return this;
   }
 

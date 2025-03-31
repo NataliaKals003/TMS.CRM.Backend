@@ -17,7 +17,18 @@ export async function insertDeal(deal: Partial<DealEntry>): Promise<number> {
 
 /** Get the Deal by Id */
 export async function selectDealById(id: number): Promise<ExtendedDealEntry | null> {
-  const [deal] = await knexClient(dealTableName).select('*').where('Id', id);
+  const [deal] = await knexClient(dealTableName)
+    .select(
+      `${dealTableName}.*`,
+      `${customerTableName}.ExternalUuid as CustomerExternalUuid`,
+      `${customerTableName}.ImageUrl as CustomerImageUrl`,
+      `${customerTableName}.FirstName as CustomerFirstName`,
+      `${customerTableName}.LastName as CustomerLastName`,
+      `${customerTableName}.Email as CustomerEmail`,
+      `${customerTableName}.Phone as CustomerPhone`,
+    )
+    .innerJoin(customerTableName, `${dealTableName}.CustomerId`, '=', `${customerTableName}.Id`)
+    .where(`${dealTableName}.Id`, id);
 
   return deal ? new ExtendedDealEntry(deal) : null;
 }
@@ -27,12 +38,12 @@ export async function selectDealByExternalUuid(externalUuid: string): Promise<Ex
   const [deal] = await knexClient(dealTableName)
     .select(
       `${dealTableName}.*`,
-      `${customerTableName}.ExternalUuid`,
-      `${customerTableName}.CustomerImageUrl`,
-      `${customerTableName}.FirstName`,
-      `${customerTableName}.LastName`,
-      `${customerTableName}.Email`,
-      `${customerTableName}.Phone`,
+      `${customerTableName}.ExternalUuid as CustomerExternalUuid`,
+      `${customerTableName}.ImageUrl as CustomerImageUrl`,
+      `${customerTableName}.FirstName as CustomerFirstName`,
+      `${customerTableName}.LastName as CustomerLastName`,
+      `${customerTableName}.Email as CustomerEmail`,
+      `${customerTableName}.Phone as CustomerPhone`,
     )
     .innerJoin(customerTableName, `${dealTableName}.CustomerId`, '=', `${customerTableName}.Id`)
     .where(`${dealTableName}.ExternalUuid`, externalUuid);
@@ -40,16 +51,11 @@ export async function selectDealByExternalUuid(externalUuid: string): Promise<Ex
   return deal ? new ExtendedDealEntry(deal) : null;
 }
 
-export async function selectDeals(
-  limit: number,
-  offset: number,
-  tenantId: number | null,
-  // customerId: number | null,
-): Promise<PaginatedResponse<ExtendedDealEntry>> {
+export async function selectDeals(limit: number, offset: number, tenantId: number | null): Promise<PaginatedResponse<ExtendedDealEntry>> {
   // Base query without deleted deals
   const baseQuery = knexClient(dealTableName).whereNull(`${dealTableName}.DeletedOn`);
 
-  // If tenantId is provided, join the customerTenant table and filter by tenantId
+  // If tenantId is provided, join the dealTable table and filter by tenantId
   if (tenantId) {
     baseQuery.where(`${dealTableName}.TenantId`, tenantId);
   }
@@ -62,15 +68,15 @@ export async function selectDeals(
     .offset(offset)
     .select(
       `${dealTableName}.*`,
-      `${customerTableName}.ExternalUuid`,
-      `${customerTableName}.CustomerImageUrl`,
-      `${customerTableName}.FirstName`,
-      `${customerTableName}.LastName`,
-      `${customerTableName}.Email`,
-      `${customerTableName}.Phone`,
+      `${customerTableName}.ExternalUuid as CustomerExternalUuid`,
+      `${customerTableName}.ImageUrl as CustomerImageUrl`,
+      `${customerTableName}.FirstName as CustomerFirstName`,
+      `${customerTableName}.LastName as CustomerLastName`,
+      `${customerTableName}.Email as CustomerEmail`,
+      `${customerTableName}.Phone as CustomerPhone`,
     );
 
-  // Get the total number of customers
+  // Get the total number of deals
   const total = (await baseQuery.clone().count('*'))[0]['count'];
 
   return {
@@ -79,8 +85,8 @@ export async function selectDeals(
   };
 }
 
-/** Update the Customer */
-export async function updateDeal(dealId: number, deal: Partial<ExtendedDealEntry>): Promise<void> {
+/** Update the Deal */
+export async function updateDeal(dealId: number, deal: Partial<DealEntry>): Promise<void> {
   await knexClient(dealTableName).update(deal).where('Id', dealId);
 
   logger.info(`Successfully updated User. Id: ${dealId}`);

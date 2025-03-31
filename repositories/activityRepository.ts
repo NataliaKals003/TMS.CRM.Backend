@@ -1,8 +1,8 @@
 import { knexClient } from '../lib/utils/knexClient.js';
 import { logger } from '../lib/utils/logger.js';
 import type { PaginatedResponse } from '../models/api/responses/pagination.js';
-import { ActivityEntry } from '../models/database/activityEntry.js';
-import { CustomerEntry } from '../models/database/customerEntry.js';
+import { ActivityEntry, ExtendedActivityEntry } from '../models/database/activityEntry.js';
+import { dealTableName } from './dealRepository.js';
 
 export const activityTableName = 'Activity';
 
@@ -16,36 +16,31 @@ export async function insertActivity(activity: Partial<ActivityEntry>): Promise<
 }
 
 /** Get the activity by Id */
-export async function selectActivityById(Id: number): Promise<ActivityEntry | null> {
-  const [activity] = await knexClient(activityTableName).select('*').where('Id', Id);
+export async function selectActivityById(id: number): Promise<ExtendedActivityEntry | null> {
+  const [activity] = await knexClient(activityTableName)
+    .select(`${activityTableName}.*`, `${dealTableName}.ExternalUuid as DealExternalUuid`)
+    .innerJoin(dealTableName, `${activityTableName}.DealId`, '=', `${dealTableName}.Id`)
+    .where(`${activityTableName}.Id`, id);
 
-  return activity ? new ActivityEntry(activity) : null;
+  return activity ? new ExtendedActivityEntry(activity) : null;
 }
 
 /** Get the activity by ExternalUuid */
-export async function selectActivityByExternalUuid(ExternalUuid: string): Promise<ActivityEntry | null> {
-  const [activity] = await knexClient(activityTableName).select('*').where('ExternalUuid', ExternalUuid);
+export async function selectActivityByExternalUuid(externalUuid: string): Promise<ExtendedActivityEntry | null> {
+  const [activity] = await knexClient(activityTableName)
+    .select(`${activityTableName}.*`, `${dealTableName}.ExternalUuid as DealExternalUuid`)
+    .innerJoin(dealTableName, `${activityTableName}.DealId`, '=', `${dealTableName}.Id`)
+    .where(`${activityTableName}.ExternalUuid`, externalUuid);
 
-  return activity ? new ActivityEntry(activity) : null;
+  return activity ? new ExtendedActivityEntry(activity) : null;
 }
 
-/** Get the activity by DealId */
-export async function selectActivityByDealId(DealId: string): Promise<ActivityEntry | null> {
-  const [activity] = await knexClient(activityTableName).select('*').where('DealId', DealId);
-
-  return activity ? new ActivityEntry(activity) : null;
-}
-
-//get all activities
-
-export async function selectActivities(limit: number, offset: number, dealId: number | null): Promise<PaginatedResponse<ActivityEntry>> {
-  // Base query without deleted activity
+export async function selectActivities(limit: number, offset: number, tenantId: number | null): Promise<PaginatedResponse<ExtendedActivityEntry>> {
   const baseQuery = knexClient(activityTableName).whereNull(`${activityTableName}.DeletedOn`);
 
-  //If dealId is provided, filter by dealId
-
-  if (dealId) {
-    baseQuery.where(`${activityTableName}.DealId`, dealId);
+  // If tenantId is provided, join the activityTableName table and filter by tenantId
+  if (tenantId) {
+    baseQuery.where(`${activityTableName}.TenantId`, tenantId);
   }
 
   // Get the activities
@@ -55,7 +50,7 @@ export async function selectActivities(limit: number, offset: number, dealId: nu
   const total = (await baseQuery.clone().count('*'))[0]['count'];
 
   return {
-    items: activities.map((activity) => new ActivityEntry(activity)),
+    items: activities.map((activity) => new ExtendedActivityEntry(activity)),
     total: Number(total),
   };
 }
@@ -71,5 +66,5 @@ export async function updateActivity(activityId: number, activity: Partial<Activ
 export async function softDeleteActivityById(activityId: number): Promise<void> {
   const [record] = await knexClient(activityTableName).update({ DeletedOn: new Date().toISOString() }).where('Id', activityId).returning('Id');
 
-  logger.info(`Successfully soft deleted Customer. Id: ${record.Id}`);
+  logger.info(`Successfully soft deleted Activity. Id: ${record.Id}`);
 }

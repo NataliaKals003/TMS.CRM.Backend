@@ -1,8 +1,13 @@
 import { randomUUID } from 'crypto';
 import type { CustomerEntry } from '../../models/database/customerEntry.js';
 import type { DealEntry, DealProgress, RoomAccess } from '../../models/database/dealEntry.js';
+import type { text } from 'aws-sdk/clients/customerprofiles.js';
+import type { integer } from 'aws-sdk/clients/cloudfront.js';
 
 export class DealEntryBuilder {
+  withExternalUuid(arg0: string) {
+    throw new Error('Method not implemented.');
+  }
   private dealEntry: DealEntry;
 
   private constructor() {
@@ -17,42 +22,42 @@ export class DealEntryBuilder {
     return this;
   }
 
-  withCustomerId(value: string): this {
+  withCustomerId(value: number): this {
     this.dealEntry.CustomerId = value;
     return this;
   }
 
-  withStreet(value: string): this {
+  withStreet(value: text): this {
     this.dealEntry.Street = value;
     return this;
   }
 
-  withCity(value: string): this {
+  withCity(value: text): this {
     this.dealEntry.City = value;
     return this;
   }
 
-  withState(value: string): this {
+  withState(value: text): this {
     this.dealEntry.State = value;
     return this;
   }
 
-  withZipCode(value: string): this {
+  withZipCode(value: text): this {
     this.dealEntry.ZipCode = value;
     return this;
   }
 
-  withRoomArea(value: string): this {
+  withRoomArea(value: number): this {
     this.dealEntry.RoomArea = value;
     return this;
   }
 
-  withPrice(value: string): this {
+  withPrice(value: number): this {
     this.dealEntry.Price = value;
     return this;
   }
 
-  withNumberOfPeople(value: string): this {
+  withNumberOfPeople(value: integer): this {
     this.dealEntry.NumberOfPeople = value;
     return this;
   }
@@ -78,7 +83,7 @@ export class DealEntryBuilder {
   }
 
   withDealImageUrl(value: string): this {
-    this.dealEntry.DealImageUrl = value;
+    this.dealEntry.ImageUrl = value;
     return this;
   }
 

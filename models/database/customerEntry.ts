@@ -12,7 +12,7 @@ export interface CustomerEntry {
   City: string;
   State: string;
   ZipCode: string;
-  CustomerImageUrl: string | null;
+  ImageUrl: string;
   CreatedOn: string;
   ModifiedOn: string | null;
   DeletedOn: string | null;
@@ -31,7 +31,7 @@ export class CustomerEntry implements CustomerEntry {
     this.City = data.City;
     this.State = data.State;
     this.ZipCode = data.ZipCode;
-    this.CustomerImageUrl = data.CustomerImageUrl;
+    this.ImageUrl = data.ImageUrl;
     this.CreatedOn = data.CreatedOn;
     this.ModifiedOn = data.ModifiedOn;
     this.DeletedOn = data.DeletedOn;
@@ -48,7 +48,7 @@ export class CustomerEntry implements CustomerEntry {
       City: payload.city,
       State: payload.state,
       ZipCode: payload.zipCode,
-      CustomerImageUrl: payload.customerImageUrl,
+      ImageUrl: payload.customerImageUrl,
     };
   }
 
@@ -63,7 +63,7 @@ export class CustomerEntry implements CustomerEntry {
       City: payload.city,
       State: payload.state,
       ZipCode: payload.zipCode,
-      CustomerImageUrl: payload.customerImageUrl,
+      ImageUrl: payload.customerImageUrl,
       ModifiedOn: new Date().toISOString(),
     };
   }
@@ -80,10 +80,10 @@ export class CustomerEntry implements CustomerEntry {
       city: this.City,
       state: this.State,
       zipCode: this.ZipCode,
-      customerImageUrl: this.CustomerImageUrl ?? '',
+      customerImageUrl: this.ImageUrl,
       createdOn: this.CreatedOn,
       modifiedOn: this.ModifiedOn ?? null,
-      deletedOn: this.ModifiedOn ?? null,
+      deletedOn: this.DeletedOn ?? null,
     };
   }
 }

@@ -22,6 +22,7 @@ export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer):
 async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<ValidatedAPIRequest<PutDealRequestPayload>> {
   logger.info('Start - validateRequest');
 
+  // Declare required field
   const parsedRequestBody = validateAndParseBody<PutDealRequestPayload>(request, [
     'price',
     'street',
@@ -32,10 +33,7 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
     'numberOfPeople',
     'appointmentDate',
     'progress',
-    'specialInstructions',
     'roomAccess',
-    'dealImageUrl',
-    'customerUuid',
   ]);
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
@@ -44,7 +42,7 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   return { tenantId: null, userId: null, payload: parsedRequestBody, pathParameter: parsedPathParameter.uuid };
 }
 
-export async function persistRecords(validatedRequest: ValidatedAPIRequest<PutDealRequestPayload>): Promise<number> {
+async function persistRecords(validatedRequest: ValidatedAPIRequest<PutDealRequestPayload>): Promise<number> {
   logger.info('Start - persistRecords');
 
   // Validate the deal exists
@@ -62,7 +60,7 @@ export async function persistRecords(validatedRequest: ValidatedAPIRequest<PutDe
   return deal.Id;
 }
 
-export async function formatResponseData(dealId: number): Promise<PersistSuccess<PutDealResponsePayload>> {
+async function formatResponseData(dealId: number): Promise<PersistSuccess<PutDealResponsePayload>> {
   logger.info('Start - formatResponse');
 
   const deal = await selectDealById(dealId);
