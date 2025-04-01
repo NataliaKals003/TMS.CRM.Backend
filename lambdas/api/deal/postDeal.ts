@@ -37,7 +37,6 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   ]);
 
   // TODO: Pull tenantId and userId from the token
-
   return { tenantId: null, userId: null, payload: parsedRequestBody };
 }
 
@@ -51,8 +50,6 @@ export async function persistRecords(validatedRequest: ValidatedAPIRequest<PostD
 
   const mappedDeal: Partial<DealEntry> = DealEntry.fromPostRequestPayload(validatedRequest.payload, customer.Id);
   const dealId = await insertDeal(mappedDeal);
-  // TODO: Create a link between the deal and the customer
-
   return dealId;
 }
 

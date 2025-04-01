@@ -30,7 +30,6 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   ]);
 
   // TODO: Pull tenantId and userId from the token
-
   return { tenantId: eventQueryParams.tenantId, userId: null, payload: null, queryParameters: eventQueryParams };
 }
 

@@ -25,7 +25,6 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   const parsedRequestBody = validateAndParseBody<PostTaskRequestPayload>(request, ['description', 'dueDate', 'completed']);
 
   // TODO: Pull tenantId and userId from the token
-
   return { tenantId: null, userId: null, payload: parsedRequestBody };
 }
 
@@ -34,7 +33,6 @@ export async function persistRecords(validatedRequest: ValidatedAPIRequest<PostT
 
   const mappedTask: Partial<TaskEntry> = TaskEntry.fromPostRequestPayload(validatedRequest.payload);
   const taskId = await insertTask(mappedTask);
-  // TODO: Create a link between the task and the tenant
 
   return taskId;
 }

@@ -24,21 +24,15 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
 
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
-  const dealUuid = parsedPathParameter.uuid;
-  if (!dealUuid) {
-    throw new BadRequestError('Missing path parameters: uuid');
-  }
-
   // TODO: Pull tenantId and userId from the token
-  return { tenantId: null, userId: null, payload: null, pathParameter: dealUuid };
+  return { tenantId: null, userId: null, payload: null, pathParameter: parsedPathParameter.uuid };
 }
 
 export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>): Promise<ExtendedDealEntry> {
   logger.info('Start - queryRecords');
 
   // Validate the deal if exists
-  const dealUuid = validatedRequest.pathParameter!;
-  const deal = await selectDealByExternalUuid(dealUuid);
+  const deal = await selectDealByExternalUuid(validatedRequest.pathParameter!);
 
   if (!deal) {
     throw new BadRequestError('Deal not found');

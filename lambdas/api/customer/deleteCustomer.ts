@@ -22,22 +22,15 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
 
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
-  const customerUuid = parsedPathParameter.uuid;
-  if (!customerUuid) {
-    throw new BadRequestError('Missing path parameters: uuid');
-  }
-
   // TODO: Pull tenantId and userId from the token
-
-  return { tenantId: null, userId: null, payload: null, pathParameter: customerUuid };
+  return { tenantId: null, userId: null, payload: null, pathParameter: parsedPathParameter.uuid };
 }
 
 export async function persistRecords(validatedRequest: ValidatedAPIRequest<null>): Promise<void> {
   logger.info('Start - persistRecords');
 
   // Validate the customer exists
-  const customerUuid = validatedRequest.pathParameter!;
-  const customer = await selectCustomerByExternalUuid(customerUuid);
+  const customer = await selectCustomerByExternalUuid(validatedRequest.pathParameter!);
 
   if (!customer) {
     throw new BadRequestError('Customer not found');

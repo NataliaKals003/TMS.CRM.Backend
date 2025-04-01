@@ -34,7 +34,6 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   ]);
 
   // TODO: Pull tenantId and userId from the token
-
   return { tenantId: null, userId: null, payload: parsedRequestBody };
 }
 
@@ -43,7 +42,6 @@ export async function persistRecords(validatedRequest: ValidatedAPIRequest<PostC
 
   const mappedCustomer: Partial<CustomerEntry> = CustomerEntry.fromPostRequestPayload(validatedRequest.payload);
   const customerId = await insertCustomer(mappedCustomer);
-  // TODO: Create a link between the customer and the tenant
 
   return customerId;
 }

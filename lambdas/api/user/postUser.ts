@@ -25,7 +25,6 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   const parsedRequestBody = validateAndParseBody<PostUserRequestPayload>(request, ['firstName', 'lastName', 'email']);
 
   // TODO: Pull tenantId and userId from the token
-
   return { tenantId: null, userId: null, payload: parsedRequestBody };
 }
 
@@ -36,7 +35,6 @@ export async function persistRecords(validatedRequest: ValidatedAPIRequest<PostU
   const userId = await insertUser(mappedUser);
 
   // TODO: Create a link between the user and the tenant
-
   return userId;
 }
 

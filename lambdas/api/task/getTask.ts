@@ -38,8 +38,7 @@ export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>):
   logger.info('Start - queryRecords');
 
   // Validate the task if exists
-  const taskUuid = validatedRequest.pathParameter!;
-  const task = await selectTaskByExternalUuid(taskUuid);
+  const task = await selectTaskByExternalUuid(validatedRequest.pathParameter!);
 
   if (!task) {
     throw new BadRequestError('Task not found');

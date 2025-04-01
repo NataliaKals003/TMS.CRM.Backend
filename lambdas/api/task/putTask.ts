@@ -25,22 +25,15 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   const parsedRequestBody = validateAndParseBody<PutTaskRequestPayload>(request, ['description', 'dueDate', 'completed']);
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
-  const taskUuid = parsedPathParameter.uuid;
-  if (!taskUuid) {
-    throw new BadRequestError('Missing path parameters: uuid');
-  }
-
   // TODO: Pull tenantId and userId from the token
-
-  return { tenantId: null, userId: null, payload: parsedRequestBody, pathParameter: taskUuid };
+  return { tenantId: null, userId: null, payload: parsedRequestBody, pathParameter: parsedPathParameter.uuid };
 }
 
 export async function persistRecords(validatedRequest: ValidatedAPIRequest<PutTaskRequestPayload>): Promise<number> {
   logger.info('Start - persistRecords');
 
   // Validate the task exists
-  const taskUuid = validatedRequest.pathParameter!;
-  const task = await selectTaskByExternalUuid(taskUuid);
+  const task = await selectTaskByExternalUuid(validatedRequest.pathParameter!);
 
   if (!task) {
     throw new BadRequestError('Task not found');

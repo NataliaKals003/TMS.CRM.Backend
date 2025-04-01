@@ -23,7 +23,6 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
   // TODO: Pull tenantId and userId from the token
-
   return { tenantId: null, userId: null, payload: null, pathParameter: parsedPathParameter.uuid };
 }
 
@@ -31,8 +30,7 @@ export async function persistRecords(validatedRequest: ValidatedAPIRequest<null>
   logger.info('Start - persistRecords');
 
   // Validate the user exists
-  const userUuid = validatedRequest.pathParameter!;
-  const user = await selectUserByExternalUuid(userUuid);
+  const user = await selectUserByExternalUuid(validatedRequest.pathParameter!);
 
   if (!user) {
     throw new BadRequestError('User not found');

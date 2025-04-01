@@ -26,7 +26,6 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   const parsedRequestBody = validateAndParseBody<PostActivityRequestPayload>(request, ['description', 'activityDate']);
 
   // TODO: Pull tenantId and userId from the token
-
   return { tenantId: null, userId: null, payload: parsedRequestBody };
 }
 

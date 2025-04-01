@@ -38,7 +38,6 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
   // TODO: Pull tenantId and userId from the token
-
   return { tenantId: null, userId: null, payload: parsedRequestBody, pathParameter: parsedPathParameter.uuid };
 }
 
@@ -46,8 +45,7 @@ async function persistRecords(validatedRequest: ValidatedAPIRequest<PutDealReque
   logger.info('Start - persistRecords');
 
   // Validate the deal exists
-  const dealUuid = validatedRequest.pathParameter!;
-  const deal = await selectDealByExternalUuid(dealUuid);
+  const deal = await selectDealByExternalUuid(validatedRequest.pathParameter!);
 
   if (!deal) {
     throw new BadRequestError('Deal not found');

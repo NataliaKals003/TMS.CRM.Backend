@@ -26,7 +26,6 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
   // TODO: Pull tenantId and userId from the token
-
   return { tenantId: null, userId: null, payload: parsedRequestBody, pathParameter: parsedPathParameter.uuid };
 }
 
@@ -34,8 +33,7 @@ export async function persistRecords(validatedRequest: ValidatedAPIRequest<PutAc
   logger.info('Start - persistRecords');
 
   // Validate the activity exists
-  const activityUuid = validatedRequest.pathParameter!;
-  const activity = await selectActivityByExternalUuid(activityUuid);
+  const activity = await selectActivityByExternalUuid(validatedRequest.pathParameter!);
 
   if (!activity) {
     throw new BadRequestError('Activity not found');

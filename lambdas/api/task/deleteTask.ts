@@ -32,8 +32,7 @@ export async function persistRecords(validatedRequest: ValidatedAPIRequest<null>
   logger.info('Start - persistRecords');
 
   // Validate the task exists
-  const taskUuid = validatedRequest.pathParameter!;
-  const task = await selectTaskByExternalUuid(taskUuid);
+  const task = await selectTaskByExternalUuid(validatedRequest.pathParameter!);
 
   if (!task) {
     throw new BadRequestError('Task not found');
