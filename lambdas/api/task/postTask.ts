@@ -22,7 +22,7 @@ export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer):
 async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<ValidatedAPIRequest<PostTaskRequestPayload>> {
   logger.info('Start - validateRequest');
 
-  const parsedRequestBody = validateAndParseBody<PostTaskRequestPayload>(request, ['description', 'dueDate']);
+  const parsedRequestBody = validateAndParseBody<PostTaskRequestPayload>(request, ['description', 'dueDate', 'completed']);
 
   // TODO: Pull tenantId and userId from the token
 

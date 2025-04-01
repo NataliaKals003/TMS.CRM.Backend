@@ -74,7 +74,7 @@ export async function up(knex) {
       table.integer('TenantId').references('Id').inTable('Tenant').onDelete('CASCADE');
       table.text('Description').notNullable();
       table.timestamp('DueDate').notNullable();
-      table.boolean('Complete').defaultTo(false);
+      table.boolean('Completed').defaultTo(false);
       table.timestamp('CreatedOn').defaultTo(knex.fn.now()).notNullable();
       table.timestamp('ModifiedOn');
       table.timestamp('DeletedOn');

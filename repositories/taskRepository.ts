@@ -55,7 +55,7 @@ export async function updateTask(taskId: number, task: Partial<TaskEntry>): Prom
   logger.info(`Successfully updated Task. Id: ${taskId}`);
 }
 
-//**Deelete Task */
+//**Delete Task */
 export async function softDeleteTaskById(taskId: number): Promise<void> {
   const [record] = await knexClient(taskTableName).update({ DeletedOn: new Date().toISOString() }).where('Id', taskId).returning('Id');
 

@@ -30,7 +30,7 @@ export class TaskEntry implements TaskEntry {
     return {
       Description: payload.description,
       DueDate: payload.dueDate,
-      Completed: payload.completed === 'false',
+      Completed: payload.completed,
     };
   }
 
@@ -39,7 +39,7 @@ export class TaskEntry implements TaskEntry {
     return {
       Description: payload.description,
       DueDate: payload.dueDate,
-      Completed: payload.completed === 'true',
+      Completed: payload.completed,
       ModifiedOn: new Date().toISOString(),
     };
   }
@@ -50,7 +50,7 @@ export class TaskEntry implements TaskEntry {
       uuid: this.ExternalUuid,
       description: this.Description,
       dueDate: this.DueDate,
-      completed: this.Completed ? 'true' : 'false',
+      completed: this.Completed,
       createdOn: this.CreatedOn,
       modifiedOn: this.ModifiedOn ?? null,
       deletedOn: this.DeletedOn ?? null,

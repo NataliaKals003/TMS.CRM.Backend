@@ -97,8 +97,13 @@ describe('API - Deal - PUT', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).data;
-    // expect(resultData.customerUuid).toBe(payload.customerUuid);
-    expect(resultData.street).toBe(payload.street);
+    expect(resultData.customer.uuid).toBe(customersGlobal[0].ExternalUuid);
+    expect(resultData.customer.customerImageUrl).toBe(customersGlobal[0].ImageUrl);
+    expect(resultData.customer.firstName).toBe(customersGlobal[0].FirstName);
+    expect(resultData.customer.lastName).toBe(customersGlobal[0].LastName);
+    expect(resultData.customer.email).toBe(customersGlobal[0].Email);
+    expect(resultData.customer.phone).toBe(customersGlobal[0].Phone);
+    expect(resultData.street).toBe('New Street Name');
     expect(resultData.city).toBe(payload.city);
     expect(resultData.state).toBe(payload.state);
     expect(resultData.zipCode).toBe(payload.zipCode);
@@ -146,7 +151,7 @@ describe('API - Deal - PUT', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Missing path parameters: uuid');
   });
 
@@ -178,13 +183,12 @@ describe('API - Deal - PUT', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Missing fields: street, roomArea, numberOfPeople');
   });
 
-  it('Error - Should return a 400 error if the usecustomer does not exist', async () => {
+  it('Error - Should return a 400 error if the deal does not exist', async () => {
     const payload: PutDealRequestPayload = {
-      // customerUuid: customersGlobal[0].ExternalUuid,
       street: '456 Elm St',
       city: 'Springfield',
       state: 'IL',
@@ -209,7 +213,7 @@ describe('API - Deal - PUT', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Deal not found');
   });
 });

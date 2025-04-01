@@ -5,14 +5,18 @@ export interface PublicTask {
   uuid: string; // Only exposes the uuid
   description: string;
   dueDate: string;
-  completed: string;
+  completed: boolean;
   createdOn: string;
   modifiedOn: string | null;
   deletedOn: string | null;
 }
 
 // POST task payloads
-export interface PostTaskRequestPayload extends Omit<PublicTask, 'uuid' | 'createdOn' | 'modifiedOn' | 'deletedOn'> {}
+export interface PostTaskRequestPayload {
+  description: string;
+  dueDate: string;
+  completed: boolean;
+}
 
 export type PostTaskResponsePayload = PublicTask;
 

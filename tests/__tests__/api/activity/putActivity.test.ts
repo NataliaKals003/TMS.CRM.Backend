@@ -104,8 +104,8 @@ describe('API - Activity - PUT', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).data;
-    // expect(resultData.dealUuid).toBe(payload.dealUuid);
-    expect(resultData.description).toBe(payload.description);
+    expect(resultData.dealUuid).toBe(dealsGlobal[0].ExternalUuid);
+    expect(resultData.description).toBe('This is a test activity');
     expect(resultData.activityImageUrl).toBe(payload.activityImageUrl);
     expect(new Date(resultData.activityDate).getTime()).toBeCloseTo(new Date(activitiesGlobal[0].ActivityDate).getTime());
     expect(resultData.uuid).toBeDefined();
@@ -135,7 +135,7 @@ describe('API - Activity - PUT', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Missing path parameters: uuid');
   });
 
@@ -161,7 +161,7 @@ describe('API - Activity - PUT', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Missing fields: description');
   });
 
@@ -182,7 +182,7 @@ describe('API - Activity - PUT', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Activity not found');
   });
 });

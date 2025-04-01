@@ -61,7 +61,7 @@ describe('API - Customer - POST', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Missing fields: phone, street, city, state, zipCode');
   });
 });

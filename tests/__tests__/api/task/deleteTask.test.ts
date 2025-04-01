@@ -1,38 +1,43 @@
-import { handler } from '../../../../lambdas/api/user/getUser.js';
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { APIGatewayProxyEventBuilder } from '../../../builders/apiGatewayProxyEventBuilder.js';
-import { selectUserByExternalUuid, userTableName } from '../../../../repositories/userRepository.js';
-import { UserEntryBuilder } from '../../../builders/userEntryBuilder.js';
-import type { UserEntry } from '../../../../models/database/userEntry.js';
 import { knexClient } from '../../../../lib/utils/knexClient.js';
 import { randomUUID } from 'crypto';
-import type { TenantEntry } from '../../../../models/database/tenantEntry.js';
+import type { TaskEntry } from '../../../../models/database/taskEntry.js';
+import { taskTableName, selectTaskByExternalUuid } from '../../../../repositories/taskRepository.js';
+import { TaskEntryBuilder } from '../../../builders/taskEntryBuilder.js';
+import { handler } from '../../../../lambdas/api/task/deleteTask.js';
 import { tenantTableName } from '../../../../repositories/tenantRepository.js';
 import { TenantEntryBuilder } from '../../../builders/tenantEntryBuilder.js';
-
-describe('API - User - GET', () => {
+import type { TenantEntry } from '../../../../models/database/tenantEntry.js';
+import type { DealEntry } from '../../../../models/database/dealEntry.js';
+describe('API - Task - DELETE', () => {
   const tenantsGlobal: TenantEntry[] = [];
-  const usersGlobal: UserEntry[] = [];
+  const dealsGlobal: DealEntry[] = [];
+  const tasksGlobal: TaskEntry[] = [];
 
   beforeAll(async () => {
     const tenant = await knexClient(tenantTableName).insert(TenantEntryBuilder.make().withName('Tenant 1').build()).returning('*');
 
     tenantsGlobal.push(...tenant);
 
-    const user = await knexClient(userTableName)
-      .insert([
-        UserEntryBuilder.make().withFirstName('John').withLastName('Doe').withEmail('john.doe@example.com').build(),
-        UserEntryBuilder.make().withFirstName('Jane').withLastName('Paul').withEmail('jane.paul@example.com').build(),
-      ])
+    const task = await knexClient(taskTableName)
+      .insert(
+        TaskEntryBuilder.make()
+          .withTenantId(tenantsGlobal[0].Id)
+          .withDescription('Test are now implemented')
+          .withDueDate(new Date().toISOString())
+          .withCompleted(true)
+          .build(),
+      )
       .returning('*');
 
-    usersGlobal.push(...user);
+    tasksGlobal.push(...task);
   });
 
-  it('Success - Should get a user', async () => {
+  it('Success - Should soft delete a task', async () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withPathParameters({
-        uuid: usersGlobal[0].ExternalUuid,
+        uuid: tasksGlobal[0].ExternalUuid,
       })
       .build();
 
@@ -40,20 +45,15 @@ describe('API - User - GET', () => {
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
 
     // Validate the API response
-    expect(res.statusCode).toBe(200);
+    expect(res.statusCode).toBe(204);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).data;
-    expect(resultData.firstName).toBe(usersGlobal[0].FirstName);
-    expect(resultData.lastName).toBe(usersGlobal[0].LastName);
-    expect(resultData.email).toBe(usersGlobal[0].Email);
-    expect(resultData.uuid).toBeDefined();
-    expect(resultData.createdOn).toBeDefined();
-    expect(resultData.modifiedOn).toBeDefined();
+    // Validate the database record
+    const task = await selectTaskByExternalUuid(tasksGlobal[0].ExternalUuid);
+    expect(task?.DeletedOn).toBeDefined();
   });
 
   it('Error - Should return a 400 error if the path parameter is missing', async () => {
-    // Event missing the uuid path parameter
     const event = APIGatewayProxyEventBuilder.make().build();
 
     // Run the handler
@@ -67,8 +67,8 @@ describe('API - User - GET', () => {
     expect(resultData).toBe('Missing path parameters: uuid');
   });
 
-  it('Error - Should return a 400 error if the user does not exist', async () => {
-    // Event with a random uuid on the path parameter
+  it('Error - Should return a 400 error if the task does not exist', async () => {
+    // Event missing the uuid path parameter
     const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).build();
 
     // Run the handler
@@ -79,6 +79,6 @@ describe('API - User - GET', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).message;
-    expect(resultData).toBe('User not found');
+    expect(resultData).toBe('Task not found');
   });
 });

@@ -66,20 +66,25 @@ describe('API - Deal - POST', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).data as PostDealResponsePayload;
+    expect(resultData.customer.uuid).toBe(customersGlobal[0].ExternalUuid);
+    expect(resultData.customer.customerImageUrl).toBe(customersGlobal[0].ImageUrl);
+    expect(resultData.customer.firstName).toBe(customersGlobal[0].FirstName);
+    expect(resultData.customer.lastName).toBe(customersGlobal[0].LastName);
+    expect(resultData.customer.email).toBe(customersGlobal[0].Email);
+    expect(resultData.customer.phone).toBe(customersGlobal[0].Phone);
+    expect(resultData.street).toBe('123 Main St');
+    expect(resultData.city).toBe('Anytown');
+    expect(resultData.state).toBe('CA');
+    expect(resultData.zipCode).toBe('12345');
+    expect(resultData.roomArea).toBeCloseTo(50);
+    expect(resultData.price).toBeCloseTo(100);
+    expect(resultData.numberOfPeople).toBe(2);
+    expect(new Date(resultData.appointmentDate).getTime()).toBeCloseTo(new Date(payload.appointmentDate).getTime());
+    expect(resultData.progress).toBe(DealProgress.InProgress);
+    expect(resultData.specialInstructions).toBe('Handle with care');
+    expect(resultData.roomAccess).toBe(RoomAccess.KeysInLockbox);
+    expect(resultData.dealImageUrl).toBe('https://example.com/image.jpg');
     expect(resultData.uuid).toBeDefined();
-    expect(resultData.customer.uuid).toBe(payload.customerUuid);
-    expect(resultData.price).toBeCloseTo(payload.price);
-    expect(resultData.street).toBe(payload.street);
-    expect(resultData.city).toBe(payload.city);
-    expect(resultData.state).toBe(payload.state);
-    expect(resultData.zipCode).toBe(payload.zipCode);
-    expect(resultData.roomArea).toBeCloseTo(payload.roomArea);
-    expect(resultData.numberOfPeople).toBe(payload.numberOfPeople);
-    expect(resultData.appointmentDate).toBe(payload.appointmentDate);
-    expect(resultData.progress).toBe(payload.progress);
-    expect(resultData.specialInstructions).toBe(payload.specialInstructions);
-    expect(resultData.roomAccess).toBe(payload.roomAccess);
-    expect(resultData.dealImageUrl).toBe(payload.dealImageUrl);
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeNull();
 
@@ -106,7 +111,7 @@ describe('API - Deal - POST', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Missing fields: zipCode, roomArea, numberOfPeople, appointmentDate, progress, roomAccess');
   });
 });

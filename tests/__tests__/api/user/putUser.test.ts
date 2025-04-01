@@ -71,7 +71,7 @@ describe('API - User - PUT', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Missing path parameters: uuid');
   });
 
@@ -97,7 +97,7 @@ describe('API - User - PUT', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Missing fields: email');
   });
 
@@ -118,7 +118,7 @@ describe('API - User - PUT', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('User not found');
   });
 });

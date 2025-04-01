@@ -1,14 +1,14 @@
-import { handler } from '../../../../lambdas/api/user/postUser.js';
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { APIGatewayProxyEventBuilder } from '../../../builders/apiGatewayProxyEventBuilder.js';
-import { selectUserByExternalUuid } from '../../../../repositories/userRepository.js';
+import { selectTaskByExternalUuid } from '../../../../repositories/taskRepository.js';
+import { handler } from '../../../../lambdas/api/task/postTask.js';
 
-describe('API - User - POST', () => {
-  it('Success - Should create a user', async () => {
+describe('API - Task - POST', () => {
+  it('Success - Should create a task', async () => {
     const payload = {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@example.com',
+      description: 'Test are now implemented',
+      dueDate: new Date().toISOString(),
+      completed: false,
     };
 
     const event = APIGatewayProxyEventBuilder.make().withBody(payload).build();
@@ -21,22 +21,23 @@ describe('API - User - POST', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).data;
-    expect(resultData.firstName).toBe(payload.firstName);
-    expect(resultData.lastName).toBe(payload.lastName);
-    expect(resultData.email).toBe(payload.email);
     expect(resultData.uuid).toBeDefined();
+    expect(resultData.description).toBe(payload.description);
+    expect(resultData.dueDate).toBe(payload.dueDate);
+    expect(resultData.completed).toBe(payload.completed);
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeNull();
 
     // Validate the database record
-    const user = await selectUserByExternalUuid(resultData.uuid);
-    expect(user).toBeDefined();
+    const task = await selectTaskByExternalUuid(resultData.uuid);
+    expect(task).toBeDefined();
   });
 
   it('Error - Should return a 400 error if the body is missing required fields', async () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withBody({
-        firstName: 'John',
+        dueDate: new Date().toISOString(),
+        completed: false,
       })
       .build();
 
@@ -48,6 +49,6 @@ describe('API - User - POST', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).message;
-    expect(resultData).toBe('Missing fields: lastName, email');
+    expect(resultData).toBe('Missing fields: description');
   });
 });

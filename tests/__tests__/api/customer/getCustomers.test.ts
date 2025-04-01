@@ -238,7 +238,7 @@ describe('API - Customers - GET', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toContain('Missing required query parameters: limit, offset');
   });
 });

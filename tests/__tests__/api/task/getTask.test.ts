@@ -5,56 +5,36 @@ import { randomUUID } from 'crypto';
 import type { TenantEntry } from '../../../../models/database/tenantEntry.js';
 import { tenantTableName } from '../../../../repositories/tenantRepository.js';
 import { TenantEntryBuilder } from '../../../builders/tenantEntryBuilder.js';
-import type { CustomerEntry } from '../../../../models/database/customerEntry.js';
-import { customerTableName, selectCustomerByExternalUuid } from '../../../../repositories/customerRepository.js';
-import { CustomerEntryBuilder } from '../../../builders/customerEntryBuilder.js';
-import { handler } from '../../../../lambdas/api/customer/getCustomer.js';
-
-describe('API - Customer - GET', () => {
+import type { TaskEntry } from '../../../../models/database/taskEntry.js';
+import { taskTableName } from '../../../../repositories/taskRepository.js';
+import { TaskEntryBuilder } from '../../../builders/taskEntryBuilder.js';
+import { handler } from '../../../../lambdas/api/task/getTask.js';
+describe('API - Task - GET', () => {
   const tenantsGlobal: TenantEntry[] = [];
-  const customersGlobal: CustomerEntry[] = [];
+  const tasksGlobal: TaskEntry[] = [];
 
   beforeAll(async () => {
     const tenant = await knexClient(tenantTableName).insert(TenantEntryBuilder.make().withName('Tenant 1').build()).returning('*');
-
     tenantsGlobal.push(...tenant);
 
-    const customer = await knexClient(customerTableName)
+    const task = await knexClient(taskTableName)
       .insert([
-        CustomerEntryBuilder.make()
+        TaskEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
-          .withFirstName('John')
-          .withLastName('Doe')
-          .withEmail('john.doe@example.com')
-          .withPhone('642103273576')
-          .withStreet('202/3 Rose Garden Lane')
-          .withCity('Auckland')
-          .withState('Auckland Region')
-          .withZipCode('0632')
-          .withCustomerImageUrl('http/1234')
-          .build(),
-        CustomerEntryBuilder.make()
-          .withTenantId(tenantsGlobal[0].Id)
-          .withFirstName('Jane')
-          .withLastName('Pan')
-          .withEmail('jane.pan@example.com')
-          .withPhone('642103273576')
-          .withStreet('103/4 Rose Garden Lane')
-          .withCity('Auckland')
-          .withState('Auckland Region')
-          .withZipCode('0632')
-          .withCustomerImageUrl('http/1234')
+          .withDescription('Test are now implemented')
+          .withDueDate(new Date().toISOString())
+          .withCompleted(true)
           .build(),
       ])
       .returning('*');
 
-    customersGlobal.push(...customer);
+    tasksGlobal.push(...task);
   });
 
-  it('Success - Should get a customer', async () => {
+  it('Success - Should get a task', async () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withPathParameters({
-        uuid: customersGlobal[0].ExternalUuid,
+        uuid: tasksGlobal[0].ExternalUuid,
       })
       .build();
 
@@ -66,15 +46,9 @@ describe('API - Customer - GET', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).data;
-    expect(resultData.firstName).toBe(customersGlobal[0].FirstName);
-    expect(resultData.lastName).toBe(customersGlobal[0].LastName);
-    expect(resultData.email).toBe(customersGlobal[0].Email);
-    expect(resultData.phone).toBe(customersGlobal[0].Phone);
-    expect(resultData.street).toBe(customersGlobal[0].Street);
-    expect(resultData.city).toBe(customersGlobal[0].City);
-    expect(resultData.state).toBe(customersGlobal[0].State);
-    expect(resultData.zipCode).toBe(customersGlobal[0].ZipCode);
-    expect(resultData.customerImageUrl).toBe(customersGlobal[0].ImageUrl);
+    expect(resultData.description).toBe(tasksGlobal[0].Description);
+    expect(new Date(resultData.dueDate).getTime()).toBeCloseTo(new Date(tasksGlobal[0].DueDate).getTime());
+    expect(resultData.completed).toBe(tasksGlobal[0].Completed);
     expect(resultData.uuid).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeDefined();
@@ -95,7 +69,7 @@ describe('API - Customer - GET', () => {
     expect(resultData).toBe('Missing path parameters: uuid');
   });
 
-  it('Error - Should return a 400 error if the customer does not exist', async () => {
+  it('Error - Should return a 400 error if the task does not exist', async () => {
     // Event with a random uuid on the path parameter
     const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).build();
 
@@ -107,6 +81,6 @@ describe('API - Customer - GET', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).message;
-    expect(resultData).toBe('Customer not found');
+    expect(resultData).toBe('Task not found');
   });
 });
