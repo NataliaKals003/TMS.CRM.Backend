@@ -20,7 +20,8 @@ export async function selectActivityById(id: number): Promise<ExtendedActivityEn
   const [activity] = await knexClient(activityTableName)
     .select(`${activityTableName}.*`, `${dealTableName}.ExternalUuid as DealExternalUuid`)
     .innerJoin(dealTableName, `${activityTableName}.DealId`, '=', `${dealTableName}.Id`)
-    .where(`${activityTableName}.Id`, id);
+    .where(`${activityTableName}.Id`, id)
+    .whereNull(`${activityTableName}.DeletedOn`);
 
   return activity ? new ExtendedActivityEntry(activity) : null;
 }
@@ -30,7 +31,8 @@ export async function selectActivityByExternalUuid(externalUuid: string): Promis
   const [activity] = await knexClient(activityTableName)
     .select(`${activityTableName}.*`, `${dealTableName}.ExternalUuid as DealExternalUuid`)
     .innerJoin(dealTableName, `${activityTableName}.DealId`, '=', `${dealTableName}.Id`)
-    .where(`${activityTableName}.ExternalUuid`, externalUuid);
+    .where(`${activityTableName}.ExternalUuid`, externalUuid)
+    .whereNull(`${activityTableName}.DeletedOn`);
 
   return activity ? new ExtendedActivityEntry(activity) : null;
 }
@@ -62,7 +64,7 @@ export async function updateActivity(activityId: number, activity: Partial<Activ
   logger.info(`Successfully updated activity. Id: ${activityId}`);
 }
 
-//**Delete activity */
+/** Delete the Activity */
 export async function softDeleteActivityById(activityId: number): Promise<void> {
   const [record] = await knexClient(activityTableName).update({ DeletedOn: new Date().toISOString() }).where('Id', activityId).returning('Id');
 

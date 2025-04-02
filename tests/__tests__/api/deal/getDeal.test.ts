@@ -69,6 +69,9 @@ describe('API - Deal - GET', () => {
       .withPathParameters({
         uuid: dealsGlobal[0].ExternalUuid,
       })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -80,7 +83,7 @@ describe('API - Deal - GET', () => {
 
     const resultData = JSON.parse(res.body!).data;
     expect(resultData.customer.uuid).toBe(customersGlobal[0].ExternalUuid);
-    expect(resultData.customer.customerImageUrl).toBe(customersGlobal[0].ImageUrl);
+    expect(resultData.customer.imageUrl).toBe(customersGlobal[0].ImageUrl);
     expect(resultData.customer.firstName).toBe(customersGlobal[0].FirstName);
     expect(resultData.customer.lastName).toBe(customersGlobal[0].LastName);
     expect(resultData.customer.email).toBe(customersGlobal[0].Email);
@@ -89,7 +92,7 @@ describe('API - Deal - GET', () => {
     expect(resultData.city).toBe(dealsGlobal[0].City);
     expect(resultData.state).toBe(dealsGlobal[0].State);
     expect(resultData.zipCode).toBe(dealsGlobal[0].ZipCode);
-    expect(resultData.dealImageUrl).toBe(dealsGlobal[0].ImageUrl);
+    expect(resultData.imageUrl).toBe(dealsGlobal[0].ImageUrl);
     expect(resultData.roomArea).toBe(dealsGlobal[0].RoomArea);
     expect(resultData.price).toBe(dealsGlobal[0].Price);
     expect(resultData.numberOfPeople).toBe(dealsGlobal[0].NumberOfPeople);
@@ -104,7 +107,11 @@ describe('API - Deal - GET', () => {
 
   it('Error - Should return a 400 error if the path parameter is missing', async () => {
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -119,7 +126,12 @@ describe('API - Deal - GET', () => {
 
   it('Error - Should return a 400 error if the deal does not exist', async () => {
     // Event with a random uuid on the path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withPathParameters({ uuid: randomUUID() })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

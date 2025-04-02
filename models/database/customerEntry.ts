@@ -38,8 +38,9 @@ export class CustomerEntry implements CustomerEntry {
   }
 
   /** Convert the PostCustomerRequestPayload to a Partial<CustomerEntry> */
-  public static fromPostRequestPayload(payload: PostCustomerRequestPayload): Partial<CustomerEntry> {
+  public static fromPostRequestPayload(payload: PostCustomerRequestPayload, tenantId: number): Partial<CustomerEntry> {
     return {
+      TenantId: tenantId,
       FirstName: payload.firstName,
       LastName: payload.lastName,
       Email: payload.email,
@@ -48,7 +49,7 @@ export class CustomerEntry implements CustomerEntry {
       City: payload.city,
       State: payload.state,
       ZipCode: payload.zipCode,
-      ImageUrl: payload.customerImageUrl,
+      ImageUrl: payload.imageUrl,
     };
   }
 
@@ -63,7 +64,7 @@ export class CustomerEntry implements CustomerEntry {
       City: payload.city,
       State: payload.state,
       ZipCode: payload.zipCode,
-      ImageUrl: payload.customerImageUrl,
+      ImageUrl: payload.imageUrl,
       ModifiedOn: new Date().toISOString(),
     };
   }
@@ -80,7 +81,7 @@ export class CustomerEntry implements CustomerEntry {
       city: this.City,
       state: this.State,
       zipCode: this.ZipCode,
-      customerImageUrl: this.ImageUrl,
+      imageUrl: this.ImageUrl,
       createdOn: this.CreatedOn,
       modifiedOn: this.ModifiedOn ?? null,
       deletedOn: this.DeletedOn ?? null,

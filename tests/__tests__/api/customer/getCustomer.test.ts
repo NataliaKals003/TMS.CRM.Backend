@@ -56,6 +56,10 @@ describe('API - Customer - GET', () => {
       .withPathParameters({
         uuid: customersGlobal[0].ExternalUuid,
       })
+      .withQueryStringParameters({
+        // TODO: Remove this once the tenantId is pulled from the token
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -74,7 +78,7 @@ describe('API - Customer - GET', () => {
     expect(resultData.city).toBe(customersGlobal[0].City);
     expect(resultData.state).toBe(customersGlobal[0].State);
     expect(resultData.zipCode).toBe(customersGlobal[0].ZipCode);
-    expect(resultData.customerImageUrl).toBe(customersGlobal[0].ImageUrl);
+    expect(resultData.imageUrl).toBe(customersGlobal[0].ImageUrl);
     expect(resultData.uuid).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeDefined();
@@ -97,7 +101,13 @@ describe('API - Customer - GET', () => {
 
   it('Error - Should return a 400 error if the customer does not exist', async () => {
     // Event with a random uuid on the path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withPathParameters({ uuid: randomUUID() })
+      .withQueryStringParameters({
+        // TODO: Remove this once the tenantId is pulled from the token
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

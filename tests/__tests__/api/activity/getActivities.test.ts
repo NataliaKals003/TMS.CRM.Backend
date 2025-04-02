@@ -86,72 +86,72 @@ describe('API - Activities - GET', () => {
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Scheduled initial consultation')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/image1.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/image1.jpg')
           .build(),
 
         ActivityEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Sent follow-up email')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/image2.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/image2.jpg')
           .build(),
 
         ActivityEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Completed site visit')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/image3.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/image3.jpg')
           .build(),
 
         ActivityEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Reviewed contract with client')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/image4.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/image4.jpg')
           .build(),
 
         ActivityEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Negotiation phase started')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/image5.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/image5.jpg')
           .build(),
 
         ActivityEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Finalized agreement terms')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/image6.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/image6.jpg')
           .build(),
 
         ActivityEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Client confirmed contract')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/image7.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/image7.jpg')
           .build(),
 
         ActivityEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Deposit payment received')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/image8.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/image8.jpg')
           .build(),
 
         ActivityEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Project completed successfully')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/image9.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/image9.jpg')
           .build(),
       ])
       .returning('*');
@@ -162,8 +162,8 @@ describe('API - Activities - GET', () => {
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[1].Id)
           .withDescription('Develop completed successfully')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/image9.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/image9.jpg')
           .build(),
       ])
       .returning('*');
@@ -237,7 +237,11 @@ describe('API - Activities - GET', () => {
 
   it('Error - Should return a 400 error if the query parameters are missing', async () => {
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

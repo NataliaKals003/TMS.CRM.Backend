@@ -79,7 +79,7 @@ describe('API - Deal - PUT', () => {
       progress: dealsGlobal[0].Progress,
       specialInstructions: dealsGlobal[0].SpecialInstructions,
       roomAccess: dealsGlobal[0].RoomAccess,
-      dealImageUrl: dealsGlobal[0].ImageUrl,
+      imageUrl: dealsGlobal[0].ImageUrl,
     };
 
     const event = APIGatewayProxyEventBuilder.make()
@@ -87,6 +87,9 @@ describe('API - Deal - PUT', () => {
         uuid: dealsGlobal[0].ExternalUuid,
       })
       .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -98,7 +101,7 @@ describe('API - Deal - PUT', () => {
 
     const resultData = JSON.parse(res.body!).data;
     expect(resultData.customer.uuid).toBe(customersGlobal[0].ExternalUuid);
-    expect(resultData.customer.customerImageUrl).toBe(customersGlobal[0].ImageUrl);
+    expect(resultData.customer.imageUrl).toBe(customersGlobal[0].ImageUrl);
     expect(resultData.customer.firstName).toBe(customersGlobal[0].FirstName);
     expect(resultData.customer.lastName).toBe(customersGlobal[0].LastName);
     expect(resultData.customer.email).toBe(customersGlobal[0].Email);
@@ -114,7 +117,7 @@ describe('API - Deal - PUT', () => {
     expect(resultData.progress).toBe(payload.progress);
     expect(resultData.specialInstructions).toBe(payload.specialInstructions);
     expect(resultData.roomAccess).toBe(payload.roomAccess);
-    expect(resultData.dealImageUrl).toBe(payload.dealImageUrl);
+    expect(resultData.imageUrl).toBe(payload.imageUrl);
     expect(resultData.uuid).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeDefined();
@@ -138,11 +141,16 @@ describe('API - Deal - PUT', () => {
       progress: DealProgress.InProgress,
       specialInstructions: dealsGlobal[0].SpecialInstructions,
       roomAccess: RoomAccess.KeysWithDoorman,
-      dealImageUrl: dealsGlobal[0].ImageUrl,
+      imageUrl: dealsGlobal[0].ImageUrl,
     };
 
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -165,7 +173,7 @@ describe('API - Deal - PUT', () => {
       appointmentDate: dealsGlobal[0].AppointmentDate,
       progress: DealProgress.InProgress,
       roomAccess: RoomAccess.KeysWithDoorman,
-      dealImageUrl: dealsGlobal[0].ImageUrl,
+      imageUrl: dealsGlobal[0].ImageUrl,
     };
 
     // Event missing the uuid path parameter
@@ -174,6 +182,9 @@ describe('API - Deal - PUT', () => {
         uuid: dealsGlobal[0].ExternalUuid,
       })
       .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -200,11 +211,17 @@ describe('API - Deal - PUT', () => {
       progress: DealProgress.InProgress,
       specialInstructions: 'Special instructions',
       roomAccess: RoomAccess.KeysWithDoorman,
-      dealImageUrl: 'https://example.com/deal.jpg',
+      imageUrl: 'https://example.com/deal.jpg',
     };
 
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withPathParameters({ uuid: randomUUID() })
+      .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

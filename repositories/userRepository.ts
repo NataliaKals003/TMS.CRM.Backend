@@ -23,7 +23,7 @@ export async function selectUserById(id: number): Promise<UserEntry | null> {
 
 /** Get the User by ExternalUuid */
 export async function selectUserByExternalUuid(externalUuid: string): Promise<UserEntry | null> {
-  const [user] = await knexClient(userTableName).select('*').where('ExternalUuid', externalUuid);
+  const [user] = await knexClient(userTableName).select('*').where('ExternalUuid', externalUuid).whereNull(`${userTableName}.DeletedOn`);
 
   return user ? new UserEntry(user) : null;
 }

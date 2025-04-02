@@ -11,7 +11,7 @@ export interface PublicCustomer {
   city: string;
   state: string;
   zipCode: string;
-  customerImageUrl: string;
+  imageUrl: string;
   createdOn: string;
   modifiedOn: string | null;
   deletedOn: string | null;

@@ -16,14 +16,14 @@ export async function insertCustomer(customer: Partial<CustomerEntry>): Promise<
 
 /** Get the Customer by Id */
 export async function selectCustomerById(id: number): Promise<CustomerEntry | null> {
-  const [customer] = await knexClient(customerTableName).select('*').where('Id', id);
+  const [customer] = await knexClient(customerTableName).select('*').where('Id', id).whereNull('DeletedOn');
 
   return customer ? new CustomerEntry(customer) : null;
 }
 
 /** Get the Customer by ExternalUuid */
 export async function selectCustomerByExternalUuid(externalUuid: string): Promise<CustomerEntry | null> {
-  const [customer] = await knexClient(customerTableName).select('*').where('ExternalUuid', externalUuid);
+  const [customer] = await knexClient(customerTableName).select('*').where('ExternalUuid', externalUuid).whereNull('DeletedOn');
 
   return customer ? new CustomerEntry(customer) : null;
 }
@@ -55,7 +55,7 @@ export async function updateCustomer(customerId: number, customer: Partial<Custo
   logger.info(`Successfully updated Customer. Id: ${customerId}`);
 }
 
-//**Deelete Customer */
+/** Delete the Customer */
 export async function softDeleteCustomerById(customerId: number): Promise<void> {
   const [record] = await knexClient(customerTableName).update({ DeletedOn: new Date().toISOString() }).where('Id', customerId).returning('Id');
 

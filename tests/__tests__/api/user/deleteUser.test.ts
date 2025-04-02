@@ -7,11 +7,18 @@ import type { UserEntry } from '../../../../models/database/userEntry.js';
 import { knexClient } from '../../../../lib/utils/knexClient.js';
 import type { PutUserRequestPayload } from '../../../../models/api/payloads/user.js';
 import { randomUUID } from 'crypto';
+import type { TenantEntry } from '../../../../models/database/tenantEntry.js';
+import { tenantTableName } from '../../../../repositories/tenantRepository.js';
+import { TenantEntryBuilder } from '../../../builders/tenantEntryBuilder.js';
 
 describe('API - User - DELETE', () => {
+  const tenantsGlobal: TenantEntry[] = [];
   const usersGlobal: UserEntry[] = [];
 
   beforeAll(async () => {
+    const tenant = await knexClient(tenantTableName).insert(TenantEntryBuilder.make().withName('Tenant 1').build()).returning('*');
+    tenantsGlobal.push(...tenant);
+
     const user = await knexClient(userTableName)
       .insert(UserEntryBuilder.make().withFirstName('John').withLastName('Doe').withEmail('john.doe@example.com').build())
       .returning('*');
@@ -24,6 +31,9 @@ describe('API - User - DELETE', () => {
       .withPathParameters({
         uuid: usersGlobal[0].ExternalUuid,
       })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -35,11 +45,15 @@ describe('API - User - DELETE', () => {
 
     // Validate the database record
     const user = await selectUserByExternalUuid(usersGlobal[0].ExternalUuid);
-    expect(user?.DeletedOn).toBeDefined();
+    expect(user).toBeNull();
   });
 
   it('Error - Should return a 400 error if the path parameter is missing', async () => {
-    const event = APIGatewayProxyEventBuilder.make().build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -54,7 +68,12 @@ describe('API - User - DELETE', () => {
 
   it('Error - Should return a 400 error if the user does not exist', async () => {
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withPathParameters({ uuid: randomUUID() })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

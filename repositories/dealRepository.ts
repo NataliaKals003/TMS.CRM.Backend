@@ -28,7 +28,9 @@ export async function selectDealById(id: number): Promise<ExtendedDealEntry | nu
       `${customerTableName}.Phone as CustomerPhone`,
     )
     .innerJoin(customerTableName, `${dealTableName}.CustomerId`, '=', `${customerTableName}.Id`)
-    .where(`${dealTableName}.Id`, id);
+    .where(`${dealTableName}.Id`, id)
+    .whereNull(`${dealTableName}.DeletedOn`)
+    .whereNull(`${customerTableName}.DeletedOn`);
 
   return deal ? new ExtendedDealEntry(deal) : null;
 }
@@ -46,24 +48,27 @@ export async function selectDealByExternalUuid(externalUuid: string): Promise<Ex
       `${customerTableName}.Phone as CustomerPhone`,
     )
     .innerJoin(customerTableName, `${dealTableName}.CustomerId`, '=', `${customerTableName}.Id`)
-    .where(`${dealTableName}.ExternalUuid`, externalUuid);
+    .where(`${dealTableName}.ExternalUuid`, externalUuid)
+    .whereNull(`${dealTableName}.DeletedOn`);
 
   return deal ? new ExtendedDealEntry(deal) : null;
 }
 
 export async function selectDeals(limit: number, offset: number, tenantId: number | null): Promise<PaginatedResponse<ExtendedDealEntry>> {
   // Base query without deleted deals
-  const baseQuery = knexClient(dealTableName).whereNull(`${dealTableName}.DeletedOn`);
+  const baseQuery = knexClient(dealTableName)
+    .whereNull(`${dealTableName}.DeletedOn`)
+    .innerJoin(customerTableName, `${dealTableName}.CustomerId`, '=', `${customerTableName}.Id`)
+    .whereNull(`${customerTableName}.DeletedOn`);
 
-  // If tenantId is provided, join the dealTable table and filter by tenantId
+  // If tenantId is provided, filter by tenantId
   if (tenantId) {
     baseQuery.where(`${dealTableName}.TenantId`, tenantId);
   }
 
-  // Get the customers
+  // Get the deals
   const deals = await baseQuery
     .clone()
-    .innerJoin(customerTableName, `${dealTableName}.CustomerId`, '=', `${customerTableName}.Id`)
     .limit(limit)
     .offset(offset)
     .select(
@@ -92,7 +97,7 @@ export async function updateDeal(dealId: number, deal: Partial<DealEntry>): Prom
   logger.info(`Successfully updated User. Id: ${dealId}`);
 }
 
-//**Delete Deal */
+/** Delete the Deal */
 export async function softDeleteDealById(dealId: number): Promise<void> {
   const [record] = await knexClient(dealTableName).update({ DeletedOn: new Date().toISOString() }).where('Id', dealId).returning('Id');
 

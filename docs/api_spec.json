@@ -954,13 +954,13 @@
           "uuid": { "type": "string" },
           "dealUuid": { "type": "string" },
           "description": { "type": "string" },
-          "activityDate": { "type": "string" },
+          "date": { "type": "string" },
           "imageUrl": { "type": "string" },
           "createdOn": { "type": "string" },
           "modifiedOn": { "type": "string" },
           "deletedOn": { "type": "string" }
         },
-        "required": ["dealUuid", "description", "activityDate"]
+        "required": ["dealUuid", "description", "date"]
       },
       "FetchSuccessActivitiesResponse": {
         "type": "object",

@@ -7,9 +7,13 @@ import type { UserEntry } from '../../../../models/database/userEntry.js';
 import { knexClient } from '../../../../lib/utils/knexClient.js';
 import type { PutUserRequestPayload } from '../../../../models/api/payloads/user.js';
 import { randomUUID } from 'crypto';
+import type { TenantEntry } from '../../../../models/database/tenantEntry.js';
+import { tenantTableName } from '../../../../repositories/tenantRepository.js';
+import { TenantEntryBuilder } from '../../../builders/tenantEntryBuilder.js';
 
 describe('API - User - PUT', () => {
   const usersGlobal: UserEntry[] = [];
+  const tenantsGlobal: TenantEntry[] = [];
 
   beforeAll(async () => {
     const user = await knexClient(userTableName)
@@ -17,6 +21,9 @@ describe('API - User - PUT', () => {
       .returning(['Id', 'ExternalUuid', 'FirstName', 'LastName']);
 
     usersGlobal.push(...user);
+
+    const tenant = await knexClient(tenantTableName).insert(TenantEntryBuilder.make().withName('Tenant 1').build()).returning('*');
+    tenantsGlobal.push(...tenant);
   });
 
   it('Success - Should update a user', async () => {
@@ -31,6 +38,9 @@ describe('API - User - PUT', () => {
         uuid: usersGlobal[0].ExternalUuid,
       })
       .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -62,7 +72,12 @@ describe('API - User - PUT', () => {
     };
 
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -109,7 +124,13 @@ describe('API - User - PUT', () => {
     };
 
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withPathParameters({ uuid: randomUUID() })
+      .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

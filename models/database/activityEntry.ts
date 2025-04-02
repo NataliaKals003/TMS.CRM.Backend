@@ -7,7 +7,7 @@ export interface ActivityEntry {
   TenantId: number;
   DealId: number;
   Description: string;
-  ActivityDate: string;
+  Date: string;
   ImageUrl: string;
   CreatedOn: string;
   ModifiedOn: string | null;
@@ -26,7 +26,7 @@ export class ActivityEntry implements ActivityEntry {
     this.TenantId = data.TenantId;
     this.DealId = data.DealId;
     this.Description = data.Description;
-    this.ActivityDate = data.ActivityDate;
+    this.Date = data.Date;
     this.ImageUrl = data.ImageUrl;
     this.CreatedOn = data.CreatedOn;
     this.ModifiedOn = data.ModifiedOn;
@@ -36,10 +36,10 @@ export class ActivityEntry implements ActivityEntry {
   /** Convert the PostActivityRequestPayload to a Partial<ActivityEntry> */
   public static fromPostRequestPayload(payload: PostActivityRequestPayload, dealId: number): Partial<ActivityEntry> {
     return {
-      Description: payload.description,
-      ActivityDate: payload.activityDate,
-      ImageUrl: payload.activityImageUrl,
       DealId: dealId,
+      Description: payload.description,
+      Date: payload.date,
+      ImageUrl: payload.imageUrl,
     };
   }
 
@@ -47,8 +47,8 @@ export class ActivityEntry implements ActivityEntry {
   public static fromPutRequestPayload(payload: PutActivityRequestPayload): Partial<ActivityEntry> {
     return {
       Description: payload.description,
-      ActivityDate: payload.activityDate,
-      ImageUrl: payload.activityImageUrl,
+      Date: payload.date,
+      ImageUrl: payload.imageUrl,
       ModifiedOn: new Date().toISOString(),
     };
   }
@@ -62,7 +62,7 @@ export class ExtendedActivityEntry implements ExtendedActivityEntry {
     this.DealId = data.DealId;
     this.Deal = { ExternalUuid: data.DealExternalUuid };
     this.Description = data.Description;
-    this.ActivityDate = data.ActivityDate;
+    this.Date = data.Date;
     this.ImageUrl = data.ImageUrl;
     this.CreatedOn = data.CreatedOn;
     this.ModifiedOn = data.ModifiedOn;
@@ -75,8 +75,8 @@ export class ExtendedActivityEntry implements ExtendedActivityEntry {
       uuid: this.ExternalUuid,
       dealUuid: this.Deal.ExternalUuid,
       description: this.Description,
-      activityDate: this.ActivityDate,
-      activityImageUrl: this.ImageUrl,
+      date: this.Date,
+      imageUrl: this.ImageUrl,
       createdOn: this.CreatedOn,
       modifiedOn: this.ModifiedOn ?? null,
       deletedOn: this.DeletedOn ?? null,

@@ -66,12 +66,17 @@ describe('API - Activity - POST', () => {
   it('Success - Should create a activity', async () => {
     const payload = {
       description: 'This is a test activity',
-      activityImageUrl: 'https://www.google.com',
-      activityDate: new Date().toISOString(),
+      imageUrl: 'https://www.google.com',
+      date: new Date().toISOString(),
       dealUuid: dealsGlobal[0].ExternalUuid,
     };
 
-    const event = APIGatewayProxyEventBuilder.make().withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -84,20 +89,24 @@ describe('API - Activity - POST', () => {
     expect(resultData.dealUuid).toBe(payload.dealUuid);
     expect(resultData.uuid).toBeDefined();
     expect(resultData.description).toBe(payload.description);
-    expect(resultData.activityImageUrl).toBe(payload.activityImageUrl);
-    expect(resultData.activityDate).toBe(payload.activityDate);
+    expect(resultData.imageUrl).toBe(payload.imageUrl);
+    expect(resultData.date).toBe(payload.date);
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeNull();
 
     // Validate the database record
     const activity = await selectActivityByExternalUuid(resultData.uuid);
     expect(activity).toBeDefined();
+    expect(activity?.TenantId).toBe(tenantsGlobal[0].Id);
   });
 
   it('Error - Should return a 400 error if the body is missing required fields', async () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withBody({
         description: 'This is a test activity',
+      })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
       })
       .build();
 
@@ -109,6 +118,6 @@ describe('API - Activity - POST', () => {
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).message;
-    expect(resultData).toBe('Missing fields: activityDate');
+    expect(resultData).toBe('Missing fields: date');
   });
 });

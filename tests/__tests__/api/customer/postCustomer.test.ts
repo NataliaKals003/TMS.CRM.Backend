@@ -2,8 +2,19 @@ import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { APIGatewayProxyEventBuilder } from '../../../builders/apiGatewayProxyEventBuilder.js';
 import { selectCustomerByExternalUuid } from '../../../../repositories/customerRepository.js';
 import { handler } from '../../../../lambdas/api/customer/postCustomer.js';
+import type { TenantEntry } from '../../../../models/database/tenantEntry.js';
+import { knexClient } from '../../../../lib/utils/knexClient.js';
+import { tenantTableName } from '../../../../repositories/tenantRepository.js';
+import { TenantEntryBuilder } from '../../../builders/tenantEntryBuilder.js';
 
 describe('API - Customer - POST', () => {
+  const tenantsGlobal: TenantEntry[] = [];
+
+  beforeAll(async () => {
+    const tenant = await knexClient(tenantTableName).insert(TenantEntryBuilder.make().withName('Tenant 1').build()).returning('*');
+    tenantsGlobal.push(...tenant);
+  });
+
   it('Success - Should create a customer', async () => {
     const payload = {
       firstName: 'John',
@@ -14,10 +25,16 @@ describe('API - Customer - POST', () => {
       city: 'Anytown',
       state: 'CA',
       zipCode: '12345',
-      customerImageUrl: 'https://example.com/profile.jpg',
+      imageUrl: 'https://example.com/profile.jpg',
     };
 
-    const event = APIGatewayProxyEventBuilder.make().withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withQueryStringParameters({
+        // TODO: Remove this once the tenantId is pulled from the token
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .withBody(payload)
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -36,7 +53,7 @@ describe('API - Customer - POST', () => {
     expect(resultData.city).toBe(payload.city);
     expect(resultData.state).toBe(payload.state);
     expect(resultData.zipCode).toBe(payload.zipCode);
-    expect(resultData.customerImageUrl).toBe(payload.customerImageUrl);
+    expect(resultData.imageUrl).toBe(payload.imageUrl);
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeNull();
 

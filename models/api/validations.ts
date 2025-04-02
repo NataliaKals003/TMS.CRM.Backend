@@ -1,6 +1,6 @@
 export interface ValidatedAPIRequest<T, Q = null> {
   userId: string | null;
-  tenantId: number | null;
+  tenantId: number;
   payload: T;
   pathParameter?: string;
   queryParameters?: Q;

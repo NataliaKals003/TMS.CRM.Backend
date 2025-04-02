@@ -4,17 +4,17 @@ import type { PostDealRequestPayload, PublicDeal, PutDealRequestPayload } from '
 import type { CustomerEntry } from './customerEntry.js';
 
 export enum DealProgress {
-  InProgress = 'inProgress',
-  Pending = 'pending',
-  Closed = 'closed',
+  InProgress = 'InProgress',
+  Pending = 'Pending',
+  Closed = 'Closed',
 }
 
 export enum RoomAccess {
-  KeysWithDoorman = 'keysWithDoorman',
-  KeysInLockbox = 'keysInLockbox',
-  KeysObtained = 'keysObtained',
-  KeysNotRequired = 'keysNotRequired',
-  Other = 'other',
+  KeysWithDoorman = 'KeysWithDoorman',
+  KeysInLockbox = 'KeysInLockbox',
+  KeysObtained = 'KeysObtained',
+  KeysNotRequired = 'KeysNotRequired',
+  Other = 'Other',
 }
 
 /** Represents the Deal entry in the database */
@@ -71,19 +71,19 @@ export class DealEntry implements DealEntry {
   /** Convert the PostDealRequestPayload to a Partial<DealEntry> */
   public static fromPostRequestPayload(payload: PostDealRequestPayload, customerId: number): Partial<DealEntry> {
     return {
+      CustomerId: customerId,
       Price: payload.price,
       Street: payload.street,
       City: payload.city,
       State: payload.state,
       ZipCode: payload.zipCode,
-      ImageUrl: payload.dealImageUrl,
+      ImageUrl: payload.imageUrl,
       RoomArea: payload.roomArea,
       NumberOfPeople: payload.numberOfPeople,
       AppointmentDate: payload.appointmentDate,
       Progress: payload.progress,
       SpecialInstructions: payload.specialInstructions,
       RoomAccess: payload.roomAccess,
-      CustomerId: customerId,
     };
   }
 
@@ -95,7 +95,7 @@ export class DealEntry implements DealEntry {
       City: payload.city,
       State: payload.state,
       ZipCode: payload.zipCode,
-      ImageUrl: payload.dealImageUrl,
+      ImageUrl: payload.imageUrl,
       RoomArea: payload.roomArea,
       NumberOfPeople: payload.numberOfPeople,
       AppointmentDate: payload.appointmentDate,
@@ -144,7 +144,7 @@ export class ExtendedDealEntry implements ExtendedDealEntry {
       uuid: this.ExternalUuid,
       customer: {
         uuid: this.Customer.ExternalUuid,
-        customerImageUrl: this.Customer.ImageUrl ?? null,
+        imageUrl: this.Customer.ImageUrl ?? null,
         firstName: this.Customer.FirstName,
         lastName: this.Customer.LastName,
         email: this.Customer.Email,
@@ -155,7 +155,7 @@ export class ExtendedDealEntry implements ExtendedDealEntry {
       city: this.City,
       state: this.State,
       zipCode: this.ZipCode,
-      dealImageUrl: this.ImageUrl,
+      imageUrl: this.ImageUrl,
       roomArea: this.RoomArea,
       numberOfPeople: this.NumberOfPeople,
       appointmentDate: this.AppointmentDate,

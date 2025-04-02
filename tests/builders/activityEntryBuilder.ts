@@ -26,12 +26,12 @@ export class ActivityEntryBuilder {
     return this;
   }
 
-  withActivityDate(value: string): this {
-    this.activityEntry.ActivityDate = value;
+  withDate(value: string): this {
+    this.activityEntry.Date = value;
     return this;
   }
 
-  withActivityImageUrl(value: string): this {
+  withImageUrl(value: string): this {
     this.activityEntry.ImageUrl = value;
     return this;
   }

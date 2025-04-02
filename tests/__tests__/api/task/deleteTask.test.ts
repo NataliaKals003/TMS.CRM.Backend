@@ -39,6 +39,9 @@ describe('API - Task - DELETE', () => {
       .withPathParameters({
         uuid: tasksGlobal[0].ExternalUuid,
       })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -50,11 +53,15 @@ describe('API - Task - DELETE', () => {
 
     // Validate the database record
     const task = await selectTaskByExternalUuid(tasksGlobal[0].ExternalUuid);
-    expect(task?.DeletedOn).toBeDefined();
+    expect(task).toBeNull();
   });
 
   it('Error - Should return a 400 error if the path parameter is missing', async () => {
-    const event = APIGatewayProxyEventBuilder.make().build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -69,7 +76,12 @@ describe('API - Task - DELETE', () => {
 
   it('Error - Should return a 400 error if the task does not exist', async () => {
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withPathParameters({ uuid: randomUUID() })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

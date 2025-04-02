@@ -73,16 +73,16 @@ describe('API - Activity - GET', () => {
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Initial consultation with the client')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('https://example.com/activity.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('https://example.com/activity.jpg')
           .build(),
 
         ActivityEntryBuilder.make()
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Follow-up meeting scheduled')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('https://example.com/follow-up.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('https://example.com/follow-up.jpg')
           .build(),
       ])
       .returning('*');
@@ -94,6 +94,9 @@ describe('API - Activity - GET', () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withPathParameters({
         uuid: activitiesGlobal[0].ExternalUuid,
+      })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
       })
       .build();
 
@@ -107,8 +110,8 @@ describe('API - Activity - GET', () => {
     const resultData = JSON.parse(res.body!).data;
     expect(resultData.dealUuid).toBe(dealsGlobal[0].ExternalUuid);
     expect(resultData.description).toBe(activitiesGlobal[0].Description);
-    expect(new Date(resultData.activityDate).getTime()).toBeCloseTo(new Date(activitiesGlobal[0].ActivityDate).getTime());
-    expect(resultData.activityImageUrl).toBe(activitiesGlobal[0].ImageUrl);
+    expect(new Date(resultData.date).getTime()).toBeCloseTo(new Date(activitiesGlobal[0].Date).getTime());
+    expect(resultData.imageUrl).toBe(activitiesGlobal[0].ImageUrl);
     expect(resultData.uuid).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeDefined();
@@ -116,7 +119,11 @@ describe('API - Activity - GET', () => {
 
   it('Error - Should return a 400 error if the path parameter is missing', async () => {
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -131,7 +138,12 @@ describe('API - Activity - GET', () => {
 
   it('Error - Should return a 400 error if the activity does not exist', async () => {
     // Event with a random uuid on the path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withPathParameters({ uuid: randomUUID() })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

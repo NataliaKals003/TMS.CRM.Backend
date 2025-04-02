@@ -2,9 +2,9 @@ import type { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructured
 import { logger } from '../../../lib/utils/logger.js';
 import { PersistSuccess } from '../../../models/api/responses/success.js';
 import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiResponseFormatters.js';
-import { validateAndParseBody } from '../../../lib/utils/apiValidations.js';
+import { validateAndParseBody, validateAndParseQueryParams } from '../../../lib/utils/apiValidations.js';
 import { InternalError } from '../../../models/api/responses/errors.js';
-import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
+import { QueryParamDataType, type ValidatedAPIRequest } from '../../../models/api/validations.js';
 import type { PostCustomerRequestPayload, PostCustomerResponsePayload } from '../../../models/api/payloads/customer.js';
 import { CustomerEntry } from '../../../models/database/customerEntry.js';
 import { insertCustomer, selectCustomerById } from '../../../repositories/customerRepository.js';
@@ -34,13 +34,17 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   ]);
 
   // TODO: Pull tenantId and userId from the token
-  return { tenantId: null, userId: null, payload: parsedRequestBody };
+  const eventQueryParams = validateAndParseQueryParams<{ tenantId: number }>(request, [
+    { name: 'tenantId', dataType: QueryParamDataType.number, required: true },
+  ]);
+
+  return { tenantId: eventQueryParams.tenantId, userId: null, payload: parsedRequestBody };
 }
 
 export async function persistRecords(validatedRequest: ValidatedAPIRequest<PostCustomerRequestPayload>): Promise<number> {
   logger.info('Start - persistRecords');
 
-  const mappedCustomer: Partial<CustomerEntry> = CustomerEntry.fromPostRequestPayload(validatedRequest.payload);
+  const mappedCustomer: Partial<CustomerEntry> = CustomerEntry.fromPostRequestPayload(validatedRequest.payload, validatedRequest.tenantId);
   const customerId = await insertCustomer(mappedCustomer);
 
   return customerId;
@@ -55,7 +59,5 @@ export async function formatResponseData(customerId: number): Promise<PersistSuc
     throw new InternalError('Customer not found');
   }
 
-  const responsePayload = customer.toPublic();
-
-  return new PersistSuccess<PostCustomerResponsePayload>('Customer has been created', responsePayload);
+  return new PersistSuccess<PostCustomerResponsePayload>('Customer has been created', customer.toPublic());
 }

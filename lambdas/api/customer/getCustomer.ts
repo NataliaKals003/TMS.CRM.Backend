@@ -2,10 +2,10 @@ import type { APIGatewayProxyEventV2WithJWTAuthorizer, APIGatewayProxyStructured
 import { logger } from '../../../lib/utils/logger.js';
 import { FetchSuccess, PersistSuccess } from '../../../models/api/responses/success.js';
 import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiResponseFormatters.js';
-import { validateAndParsePathParams } from '../../../lib/utils/apiValidations.js';
+import { validateAndParsePathParams, validateAndParseQueryParams } from '../../../lib/utils/apiValidations.js';
 import { selectCustomerByExternalUuid } from '../../../repositories/customerRepository.js';
 import { BadRequestError } from '../../../models/api/responses/errors.js';
-import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
+import { QueryParamDataType, type ValidatedAPIRequest } from '../../../models/api/validations.js';
 import type { CustomerEntry } from '../../../models/database/customerEntry.js';
 import type { GetCustomerResponsePayload } from '../../../models/api/payloads/customer.js';
 
@@ -25,7 +25,11 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
   // TODO: Pull tenantId and userId from the token
-  return { tenantId: null, userId: null, payload: null, pathParameter: parsedPathParameter.uuid };
+  const eventQueryParams = validateAndParseQueryParams<{ tenantId: number }>(request, [
+    { name: 'tenantId', dataType: QueryParamDataType.number, required: true },
+  ]);
+
+  return { tenantId: eventQueryParams.tenantId, userId: null, payload: null, pathParameter: parsedPathParameter.uuid };
 }
 
 export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>): Promise<CustomerEntry> {
@@ -44,5 +48,5 @@ export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>):
 export async function formatResponseData(customer: CustomerEntry): Promise<PersistSuccess<GetCustomerResponsePayload>> {
   logger.info('Start - formatResponse');
 
-  return new FetchSuccess<GetCustomerResponsePayload>('Successfully fetched custoemer', customer.toPublic());
+  return new FetchSuccess<GetCustomerResponsePayload>('Successfully fetched customer', customer.toPublic());
 }

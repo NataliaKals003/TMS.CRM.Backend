@@ -16,14 +16,14 @@ export async function insertTask(task: Partial<TaskEntry>): Promise<number> {
 
 /** Get the task by Id */
 export async function selectTaskById(id: number): Promise<TaskEntry | null> {
-  const [task] = await knexClient(taskTableName).select('*').where('Id', id);
+  const [task] = await knexClient(taskTableName).select('*').where('Id', id).whereNull(`${taskTableName}.DeletedOn`);
 
   return task ? new TaskEntry(task) : null;
 }
 
 /** Get the Task by ExternalUuid */
 export async function selectTaskByExternalUuid(externalUuid: string): Promise<TaskEntry | null> {
-  const [task] = await knexClient(taskTableName).select('*').where('ExternalUuid', externalUuid);
+  const [task] = await knexClient(taskTableName).select('*').where('ExternalUuid', externalUuid).whereNull(`${taskTableName}.DeletedOn`);
 
   return task ? new TaskEntry(task) : null;
 }
@@ -55,7 +55,7 @@ export async function updateTask(taskId: number, task: Partial<TaskEntry>): Prom
   logger.info(`Successfully updated Task. Id: ${taskId}`);
 }
 
-//**Delete Task */
+/** Delete the Task */
 export async function softDeleteTaskById(taskId: number): Promise<void> {
   const [record] = await knexClient(taskTableName).update({ DeletedOn: new Date().toISOString() }).where('Id', taskId).returning('Id');
 

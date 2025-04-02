@@ -73,8 +73,8 @@ describe('API - Activity - PUT', () => {
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('This is a test activity')
-          .withActivityImageUrl('https://www.google.com')
-          .withActivityDate(new Date().toISOString())
+          .withImageUrl('https://www.google.com')
+          .withDate(new Date().toISOString())
           .build(),
       )
       .returning('*');
@@ -85,8 +85,8 @@ describe('API - Activity - PUT', () => {
   it('Success - Should update a activity', async () => {
     const payload: PutActivityRequestPayload = {
       description: 'This is a test activity',
-      activityImageUrl: activitiesGlobal[0].ImageUrl,
-      activityDate: activitiesGlobal[0].ActivityDate,
+      imageUrl: activitiesGlobal[0].ImageUrl,
+      date: activitiesGlobal[0].Date,
     };
 
     const event = APIGatewayProxyEventBuilder.make()
@@ -94,6 +94,9 @@ describe('API - Activity - PUT', () => {
         uuid: activitiesGlobal[0].ExternalUuid,
       })
       .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -106,8 +109,8 @@ describe('API - Activity - PUT', () => {
     const resultData = JSON.parse(res.body!).data;
     expect(resultData.dealUuid).toBe(dealsGlobal[0].ExternalUuid);
     expect(resultData.description).toBe('This is a test activity');
-    expect(resultData.activityImageUrl).toBe(payload.activityImageUrl);
-    expect(new Date(resultData.activityDate).getTime()).toBeCloseTo(new Date(activitiesGlobal[0].ActivityDate).getTime());
+    expect(resultData.imageUrl).toBe(payload.imageUrl);
+    expect(new Date(resultData.date).getTime()).toBeCloseTo(new Date(activitiesGlobal[0].Date).getTime());
     expect(resultData.uuid).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeDefined();
@@ -121,12 +124,17 @@ describe('API - Activity - PUT', () => {
   it('Error - Should return a 400 error if the path parameter is missing', async () => {
     const payload: PutActivityRequestPayload = {
       description: 'This is a test activity',
-      activityImageUrl: activitiesGlobal[0].ImageUrl,
-      activityDate: activitiesGlobal[0].ActivityDate,
+      imageUrl: activitiesGlobal[0].ImageUrl,
+      date: activitiesGlobal[0].Date,
     };
 
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -142,8 +150,8 @@ describe('API - Activity - PUT', () => {
   it('Error - Should return a 400 error if the body is missing required fields', async () => {
     // Payload missing the description
     const payload: Partial<PutActivityRequestPayload> = {
-      activityImageUrl: activitiesGlobal[0].ImageUrl,
-      activityDate: activitiesGlobal[0].ActivityDate,
+      imageUrl: activitiesGlobal[0].ImageUrl,
+      date: activitiesGlobal[0].Date,
     };
 
     // Event missing the uuid path parameter
@@ -152,6 +160,9 @@ describe('API - Activity - PUT', () => {
         uuid: dealsGlobal[0].ExternalUuid,
       })
       .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -168,12 +179,18 @@ describe('API - Activity - PUT', () => {
   it('Error - Should return a 400 error if the activity does not exist', async () => {
     const payload: PutActivityRequestPayload = {
       description: 'This is a test activity',
-      activityImageUrl: 'https://www.google.com',
-      activityDate: new Date().toISOString(),
+      imageUrl: 'https://www.google.com',
+      date: new Date().toISOString(),
     };
 
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withPathParameters({ uuid: randomUUID() })
+      .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

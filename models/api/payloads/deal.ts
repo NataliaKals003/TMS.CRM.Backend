@@ -8,7 +8,7 @@ export interface PublicDeal {
   uuid: string; // Only exposes the uuid
   customer: {
     uuid: string;
-    customerImageUrl: string | null;
+    imageUrl: string | null;
     firstName: string;
     lastName: string;
     email: string;
@@ -19,7 +19,7 @@ export interface PublicDeal {
   city: text;
   state: text;
   zipCode: text;
-  dealImageUrl: string;
+  imageUrl: string;
   roomArea: number;
   numberOfPeople: integer;
   appointmentDate: string;

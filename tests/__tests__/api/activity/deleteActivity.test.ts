@@ -49,6 +49,7 @@ describe('API - Activity - DELETE', () => {
     const deal = await knexClient(dealTableName)
       .insert(
         DealEntryBuilder.make()
+          .withTenantId(tenantsGlobal[0].Id)
           .withCustomerId(customersGlobal[0].Id)
           .withPrice(100)
           .withStreet('202/3 Rose Garden Lane')
@@ -74,8 +75,8 @@ describe('API - Activity - DELETE', () => {
           .withTenantId(tenantsGlobal[0].Id)
           .withDealId(dealsGlobal[0].Id)
           .withDescription('Sample activity description')
-          .withActivityDate(new Date().toISOString())
-          .withActivityImageUrl('http://example.com/profile.jpg')
+          .withDate(new Date().toISOString())
+          .withImageUrl('http://example.com/profile.jpg')
           .build(),
       )
       .returning('*');
@@ -88,6 +89,9 @@ describe('API - Activity - DELETE', () => {
       .withPathParameters({
         uuid: activitiesGlobal[0].ExternalUuid,
       })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -99,11 +103,15 @@ describe('API - Activity - DELETE', () => {
 
     // Validate the database record
     const activity = await selectActivityByExternalUuid(activitiesGlobal[0].ExternalUuid);
-    expect(activity?.DeletedOn).toBeDefined();
+    expect(activity).toBeNull();
   });
 
   it('Error - Should return a 400 error if the path parameter is missing', async () => {
-    const event = APIGatewayProxyEventBuilder.make().build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -118,7 +126,12 @@ describe('API - Activity - DELETE', () => {
 
   it('Error - Should return a 400 error if the activity does not exist', async () => {
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withPathParameters({ uuid: randomUUID() })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

@@ -53,10 +53,15 @@ describe('API - Deal - POST', () => {
       progress: DealProgress.InProgress,
       specialInstructions: 'Handle with care',
       roomAccess: RoomAccess.KeysInLockbox,
-      dealImageUrl: 'https://example.com/image.jpg',
+      imageUrl: 'https://example.com/image.jpg',
     };
 
-    const event = APIGatewayProxyEventBuilder.make().withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -67,7 +72,7 @@ describe('API - Deal - POST', () => {
 
     const resultData = JSON.parse(res.body!).data as PostDealResponsePayload;
     expect(resultData.customer.uuid).toBe(customersGlobal[0].ExternalUuid);
-    expect(resultData.customer.customerImageUrl).toBe(customersGlobal[0].ImageUrl);
+    expect(resultData.customer.imageUrl).toBe(customersGlobal[0].ImageUrl);
     expect(resultData.customer.firstName).toBe(customersGlobal[0].FirstName);
     expect(resultData.customer.lastName).toBe(customersGlobal[0].LastName);
     expect(resultData.customer.email).toBe(customersGlobal[0].Email);
@@ -83,7 +88,7 @@ describe('API - Deal - POST', () => {
     expect(resultData.progress).toBe(DealProgress.InProgress);
     expect(resultData.specialInstructions).toBe('Handle with care');
     expect(resultData.roomAccess).toBe(RoomAccess.KeysInLockbox);
-    expect(resultData.dealImageUrl).toBe('https://example.com/image.jpg');
+    expect(resultData.imageUrl).toBe('https://example.com/image.jpg');
     expect(resultData.uuid).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeNull();
@@ -91,6 +96,7 @@ describe('API - Deal - POST', () => {
     // Validate the database record
     const deal = await selectDealByExternalUuid(resultData.uuid);
     expect(deal).toBeDefined();
+    expect(deal?.TenantId).toBe(tenantsGlobal[0].Id);
   });
 
   it('Error - Should return a 400 error if the body is missing required fields', async () => {
@@ -101,6 +107,9 @@ describe('API - Deal - POST', () => {
         city: 'Anytown',
         state: 'CA',
         customerUuid: '12345678-1234-1234-1234-123456789012',
+      })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
       })
       .build();
 

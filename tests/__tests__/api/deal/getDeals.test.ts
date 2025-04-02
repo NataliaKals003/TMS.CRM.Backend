@@ -256,7 +256,11 @@ describe('API - Deals - GET', () => {
 
   it('Error - Should return a 400 error if the query parameters are missing', async () => {
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;

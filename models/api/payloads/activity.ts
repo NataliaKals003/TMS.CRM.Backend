@@ -5,17 +5,15 @@ export interface PublicActivity {
   uuid: string; // Only exposes the uuid
   dealUuid: string;
   description: string;
-  activityDate: string;
-  activityImageUrl: string;
+  date: string;
+  imageUrl: string;
   createdOn: string;
   modifiedOn: string | null;
   deletedOn: string | null;
 }
 
 // POST activity payloads
-export interface PostActivityRequestPayload extends Omit<PublicActivity, 'uuid' | 'createdOn' | 'modifiedOn' | 'deletedOn'> {
-  dealUuid: string;
-}
+export interface PostActivityRequestPayload extends Omit<PublicActivity, 'uuid' | 'createdOn' | 'modifiedOn' | 'deletedOn'> {}
 
 export type PostActivityResponsePayload = PublicActivity;
 

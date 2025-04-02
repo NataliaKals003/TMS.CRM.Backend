@@ -3,12 +3,12 @@ import { logger } from '../../../lib/utils/logger.js';
 import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
 import { PersistSuccess } from '../../../models/api/responses/success.js';
 import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiResponseFormatters.js';
-import { validateAndParseBody, validateAndParsePathParams } from '../../../lib/utils/apiValidations.js';
+import { validateAndParseBody, validateAndParsePathParams, validateAndParseQueryParams } from '../../../lib/utils/apiValidations.js';
 import { selectUserByExternalUuid, selectUserById, updateUser } from '../../../repositories/userRepository.js';
 import { BadRequestError, InternalError } from '../../../models/api/responses/errors.js';
 import { UserEntry } from '../../../models/database/userEntry.js';
 import type { PutUserRequestPayload, PutUserResponsePayload } from '../../../models/api/payloads/user.js';
-
+import { QueryParamDataType } from '../../../models/api/validations.js';
 export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyResultV2> {
   logger.info('Request received: ', request);
 
@@ -26,7 +26,11 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   const parsedRequestBody = validateAndParseBody<PutUserRequestPayload>(request, ['firstName', 'lastName', 'email']);
 
   // TODO: Pull tenantId and userId from the token
-  return { tenantId: null, userId: null, payload: parsedRequestBody, pathParameter: parsedPathParameter.uuid };
+  const eventQueryParams = validateAndParseQueryParams<{ tenantId: number }>(request, [
+    { name: 'tenantId', dataType: QueryParamDataType.number, required: true },
+  ]);
+
+  return { tenantId: eventQueryParams.tenantId, userId: null, payload: parsedRequestBody, pathParameter: parsedPathParameter.uuid };
 }
 
 export async function persistRecords(validatedRequest: ValidatedAPIRequest<PutUserRequestPayload>): Promise<number> {
