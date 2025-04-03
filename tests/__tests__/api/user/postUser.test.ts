@@ -2,7 +2,18 @@ import { handler } from '../../../../lambdas/api/user/postUser.js';
 import type { APIGatewayProxyStructuredResultV2 } from 'aws-lambda';
 import { APIGatewayProxyEventBuilder } from '../../../builders/apiGatewayProxyEventBuilder.js';
 import { selectUserByExternalUuid } from '../../../../repositories/userRepository.js';
+import type { TenantEntry } from '../../../../models/database/tenantEntry.js';
+import { knexClient } from '../../../../lib/utils/knexClient.js';
+import { tenantTableName } from '../../../../repositories/tenantRepository.js';
+import { TenantEntryBuilder } from '../../../builders/tenantEntryBuilder.js';
 describe('API - User - POST', () => {
+  const tenantsGlobal: TenantEntry[] = [];
+
+  beforeAll(async () => {
+    const tenant = await knexClient(tenantTableName).insert(TenantEntryBuilder.make().withName('Tenant 1').build()).returning('*');
+    tenantsGlobal.push(...tenant);
+  });
+
   it('Success - Should create a user', async () => {
     const payload = {
       firstName: 'John',
@@ -10,7 +21,12 @@ describe('API - User - POST', () => {
       email: 'john.doe@example.com',
     };
 
-    const event = APIGatewayProxyEventBuilder.make().withBody(payload).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withBody(payload)
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -37,6 +53,9 @@ describe('API - User - POST', () => {
       .withBody({
         firstName: 'John',
       })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -46,7 +65,7 @@ describe('API - User - POST', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Missing fields: lastName, email');
   });
 });

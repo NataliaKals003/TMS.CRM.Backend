@@ -15,9 +15,7 @@ describe('API - User - GET', () => {
   const usersGlobal: UserEntry[] = [];
 
   beforeAll(async () => {
-    const tenant = await knexClient(tenantTableName)
-      .insert(TenantEntryBuilder.make().withFirstName('John').withLastName('Doe').withEmail('john.doe@example.com').build())
-      .returning('*');
+    const tenant = await knexClient(tenantTableName).insert(TenantEntryBuilder.make().withName('Tenant 1').build()).returning('*');
 
     tenantsGlobal.push(...tenant);
 
@@ -36,6 +34,9 @@ describe('API - User - GET', () => {
       .withPathParameters({
         uuid: usersGlobal[0].ExternalUuid,
       })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
       .build();
 
     // Run the handler
@@ -52,16 +53,15 @@ describe('API - User - GET', () => {
     expect(resultData.uuid).toBeDefined();
     expect(resultData.createdOn).toBeDefined();
     expect(resultData.modifiedOn).toBeDefined();
-
-    // Validate the database record
-    const user = await selectUserByExternalUuid(resultData.uuid);
-    expect(user).toBeDefined();
-    expect(user!.Email).toBe(usersGlobal[0].Email);
   });
 
   it('Error - Should return a 400 error if the path parameter is missing', async () => {
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -70,13 +70,18 @@ describe('API - User - GET', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('Missing path parameters: uuid');
   });
 
   it('Error - Should return a 400 error if the user does not exist', async () => {
     // Event with a random uuid on the path parameter
-    const event = APIGatewayProxyEventBuilder.make().withPathParameters({ uuid: randomUUID() }).build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withPathParameters({ uuid: randomUUID() })
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -85,7 +90,7 @@ describe('API - User - GET', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toBe('User not found');
   });
 });

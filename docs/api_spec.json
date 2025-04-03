@@ -1,0 +1,1033 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "TSM.CRM API",
+    "version": "1.0.0",
+    "description": "API documentation for managing users, deals, customers, tasks, and activities in TSM.CRM"
+  },
+  "paths": {
+    "/users": {
+      "get": {
+        "summary": "Get all users",
+        "operationId": "getUsers",
+        "tags": ["Users"],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchSuccessUsersResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new user",
+        "operationId": "createUser",
+        "tags": ["Users"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User has been created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistSuccessUserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{uuid}": {
+      "get": {
+        "summary": "Get a single user",
+        "operationId": "getUserById",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchSingleUserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a user",
+        "operationId": "updateUser",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User has been updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistSuccessUserResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a user",
+        "operationId": "deleteUser",
+        "tags": ["Users"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User has been deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteSuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found"
+          }
+        }
+      }
+    },
+    "/customers": {
+      "get": {
+        "summary": "Get all customers",
+        "operationId": "getCustomers",
+        "tags": ["Customers"],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched customers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchCustomersResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new customer",
+        "operationId": "createCustomer",
+        "tags": ["Customers"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Customer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Customer has been created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistSuccessCustomerResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers/{uuid}": {
+      "get": {
+        "summary": "Get a single customer",
+        "operationId": "getCustomerById",
+        "tags": ["Customers"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched customer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchSingleCustomerResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Customer not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a customer",
+        "operationId": "updateCustomer",
+        "tags": ["Customers"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Customer"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Customer has been updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistSuccessCustomerResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Customer not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a customer",
+        "operationId": "deleteCustomer",
+        "tags": ["Customers"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer has been deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteSuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Customer not found"
+          }
+        }
+      }
+    },
+    "/deals": {
+      "get": {
+        "summary": "Get all deals",
+        "operationId": "getDeals",
+        "tags": ["Deals"],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched deals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchDealsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new deal",
+        "operationId": "createDeal",
+        "tags": ["Deals"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Deal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Deal has been created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistSuccessDealResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/deals/{uuid}": {
+      "get": {
+        "summary": "Get a single deal",
+        "operationId": "getDealById",
+        "tags": ["Deals"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched deal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchSingleDealResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Deal not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a deal",
+        "operationId": "updateDeal",
+        "tags": ["Deals"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Deal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deal has been updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistSuccessDealResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Deal not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a deal",
+        "operationId": "deleteDeal",
+        "tags": ["Deals"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deal has been deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteSuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Deal not found"
+          }
+        }
+      }
+    },
+    "/tasks": {
+      "get": {
+        "summary": "Get all tasks",
+        "operationId": "getTasks",
+        "tags": ["Tasks"],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchTasksResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new task",
+        "operationId": "createTask",
+        "tags": ["Tasks"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Task"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Task has been created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistSuccessTaskResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tasks/{uuid}": {
+      "get": {
+        "summary": "Get a single task",
+        "operationId": "getTaskById",
+        "tags": ["Tasks"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchSingleTaskResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a task",
+        "operationId": "updateTask",
+        "tags": ["Tasks"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Task"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Task has been updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistSuccessTaskResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a task",
+        "operationId": "deleteTask",
+        "tags": ["Tasks"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task has been deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteSuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found"
+          }
+        }
+      }
+    },
+    "/activities": {
+      "get": {
+        "summary": "Get all activities",
+        "operationId": "getActivities",
+        "tags": ["Activities"],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched activities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchSuccessActivitiesResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new activity",
+        "operationId": "createActivity",
+        "tags": ["Activities"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Activity"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Activity has been created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistSuccessActivityResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/activities/{uuid}": {
+      "get": {
+        "summary": "Get a single activity",
+        "operationId": "getActivityById",
+        "tags": ["Activities"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully fetched activity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchSingleActivityResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Activity not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an activity",
+        "operationId": "updateActivity",
+        "tags": ["Activities"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Activity"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Activity has been updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PersistSuccessActivityResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Activity not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an activity",
+        "operationId": "deleteActivity",
+        "tags": ["Activities"],
+        "parameters": [
+          {
+            "name": "uuid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activity has been deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteSuccessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Activity not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "uuid": { "type": "string" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string" },
+          "createdOn": { "type": "string" },
+          "modifiedOn": { "type": "string" }
+        },
+        "required": ["firstName", "lastName", "email"]
+      },
+      "FetchSuccessUsersResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": { "type": "array", "items": { "$ref": "#/components/schemas/User" } },
+              "total": { "type": "number" }
+            }
+          }
+        }
+      },
+      "FetchSingleUserResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/User" }
+        }
+      },
+      "PersistSuccessUserResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/User" }
+        }
+      },
+
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "uuid": { "type": "string" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "street": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "zipCode": { "type": "string" },
+          "imageUrl": { "type": "string" },
+          "createdOn": { "type": "string" },
+          "modifiedOn": { "type": "string" },
+          "deletedOn": { "type": "string" }
+        },
+        "required": ["firstName", "lastName", "email", "phone", "street", "city", "state", "zipCode"]
+      },
+      "FetchCustomersResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": { "type": "array", "items": { "$ref": "#/components/schemas/Customer" } },
+              "total": { "type": "number" }
+            }
+          }
+        }
+      },
+      "FetchSingleCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/Customer" }
+        }
+      },
+
+      "DealCustomer": {
+        "type": "object",
+        "properties": {
+          "uuid": { "type": "string" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "imageUrl": { "type": "string" }
+        }
+      },
+      "DealWithCustomer": {
+        "type": "object",
+        "properties": {
+          "uuid": { "type": "string" },
+          "customer": { "$ref": "#/components/schemas/DealCustomer" },
+          "price": { "type": "number" },
+          "street": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "zipCode": { "type": "string" },
+          "imageUrl": { "type": "string" },
+          "roomArea": { "type": "number" },
+          "numberOfPeople": { "type": "number" },
+          "appointmentDate": { "type": "string" },
+          "progress": { "type": "string" },
+          "specialInstructions": { "type": "string" },
+          "roomAccess": { "type": "string" },
+          "createdOn": { "type": "string" },
+          "modifiedOn": { "type": "string" },
+          "deletedOn": { "type": "string" }
+        }
+      },
+      "Deal": {
+        "type": "object",
+        "properties": {
+          "uuid": { "type": "string" },
+          "customerUuid": { "type": "string" },
+          "price": { "type": "number" },
+          "street": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "zipCode": { "type": "string" },
+          "imageUrl": { "type": "string" },
+          "roomArea": { "type": "number" },
+          "numberOfPeople": { "type": "number" },
+          "appointmentDate": { "type": "string" },
+          "progress": { "type": "string" },
+          "specialInstructions": { "type": "string" },
+          "roomAccess": { "type": "string" },
+          "createdOn": { "type": "string" },
+          "modifiedOn": { "type": "string" },
+          "deletedOn": { "type": "string" }
+        }
+      },
+      "FetchDealsResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": { "type": "array", "items": { "$ref": "#/components/schemas/DealWithCustomer" } },
+              "total": { "type": "number" }
+            }
+          }
+        }
+      },
+      "FetchSingleDealResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/DealWithCustomer" }
+        }
+      },
+
+      "Task": {
+        "type": "object",
+        "properties": {
+          "uuid": { "type": "string" },
+          "description": { "type": "string" },
+          "dueDate": { "type": "string" },
+          "completed": { "type": "boolean" },
+          "createdOn": { "type": "string" },
+          "modifiedOn": { "type": "string" },
+          "deletedOn": { "type": "string" }
+        },
+        "required": ["description", "dueDate", "completed"]
+      },
+      "FetchTasksResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } },
+              "total": { "type": "number" }
+            }
+          }
+        }
+      },
+      "FetchSingleTaskResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/Task" }
+        }
+      },
+
+      "Activity": {
+        "type": "object",
+        "properties": {
+          "uuid": { "type": "string" },
+          "dealUuid": { "type": "string" },
+          "description": { "type": "string" },
+          "date": { "type": "string" },
+          "imageUrl": { "type": "string" },
+          "createdOn": { "type": "string" },
+          "modifiedOn": { "type": "string" },
+          "deletedOn": { "type": "string" }
+        },
+        "required": ["dealUuid", "description", "date"]
+      },
+      "FetchSuccessActivitiesResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "items": { "type": "array", "items": { "$ref": "#/components/schemas/Activity" } },
+              "total": { "type": "number" }
+            }
+          }
+        }
+      },
+      "FetchSingleActivityResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/Activity" }
+        }
+      },
+      "PersistSuccessActivityResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/Activity" }
+        }
+      },
+
+      "PersistSuccessCustomerResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/Customer" }
+        }
+      },
+
+      "PersistSuccessDealResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/DealWithCustomer" }
+        }
+      },
+
+      "PersistSuccessTaskResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "$ref": "#/components/schemas/Task" }
+        }
+      },
+
+      "DeleteSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "data": { "type": "object", "nullable": true }
+        }
+      }
+    }
+  }
+}

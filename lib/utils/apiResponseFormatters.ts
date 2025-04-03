@@ -36,8 +36,8 @@ export async function formatErrorResponse(
   const type = result.name ?? 'Error';
 
   const body = {
-    errorMessage: message,
-    errorType: type,
+    message,
+    type,
   };
 
   return {

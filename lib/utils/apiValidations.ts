@@ -3,12 +3,12 @@ import { BadRequestError } from '../../models/api/responses/errors.js';
 import { QueryParamDataType, type ExpectedQueryParam } from '../../models/api/validations.js';
 
 // Path params
-export function validateAndParsePathParams<T>(event: APIGatewayProxyEventV2, requiredPathParams: string[] = []): T {
-  if (!event.pathParameters) {
+export function validateAndParsePathParams<T>(request: APIGatewayProxyEventV2, requiredPathParams: string[] = []): T {
+  if (!request.pathParameters) {
     throw new BadRequestError('Event path parameters not found');
   }
 
-  const parsedEvent = typeof event === 'object' ? event : JSON.parse(event);
+  const parsedEvent = typeof request === 'object' ? request : JSON.parse(request);
   const pathParamKeys = Object.keys(parsedEvent.pathParameters);
   const message = requiredPathParams.filter((field) => !pathParamKeys.includes(field)).join(', ');
 
@@ -20,12 +20,12 @@ export function validateAndParsePathParams<T>(event: APIGatewayProxyEventV2, req
 }
 
 // Body params
-export function validateAndParseBody<T>(event: APIGatewayProxyEventV2, requiredFields: string[] = []): T {
-  if (!event.body) {
+export function validateAndParseBody<T>(request: APIGatewayProxyEventV2, requiredFields: string[] = []): T {
+  if (!request.body) {
     throw new BadRequestError('Event body not found');
   }
 
-  const parsedEvent = typeof event === 'object' ? event : JSON.parse(event);
+  const parsedEvent = typeof request === 'object' ? request : JSON.parse(request);
   const parsedBody = JSON.parse(parsedEvent.body);
   const message = requiredFields.filter((field) => !(field in parsedBody)).join(', ');
 
@@ -37,12 +37,12 @@ export function validateAndParseBody<T>(event: APIGatewayProxyEventV2, requiredF
 }
 
 // Query params
-export function validateAndParseQueryParams<T>(event: APIGatewayProxyEventV2, expectedQueryParams: ExpectedQueryParam[] = []): T {
-  if (!event.queryStringParameters) {
+export function validateAndParseQueryParams<T>(request: APIGatewayProxyEventV2, expectedQueryParams: ExpectedQueryParam[] = []): T {
+  if (!request.queryStringParameters) {
     throw new BadRequestError('Event query parameters not found');
   }
 
-  const parsedEvent = typeof event === 'object' ? event : JSON.parse(event);
+  const parsedEvent = typeof request === 'object' ? request : JSON.parse(request);
   const queryParamKeys = Object.keys(parsedEvent.queryStringParameters);
   const missingParams = expectedQueryParams
     .filter(({ name, required }) => required && !queryParamKeys.includes(name))

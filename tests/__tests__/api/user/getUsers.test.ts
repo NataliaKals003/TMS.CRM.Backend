@@ -16,9 +16,9 @@ describe('API - User - GET', () => {
   beforeAll(async () => {
     const tenant = await knexClient(tenantTableName)
       .insert([
-        TenantEntryBuilder.make().withFirstName('Tenant').withLastName('One').withEmail('tenant1@example.com').build(),
-        TenantEntryBuilder.make().withFirstName('Tenant').withLastName('Two').withEmail('tenant2@example.com').build(),
-        TenantEntryBuilder.make().withFirstName('Tenant').withLastName('Three').withEmail('tenant3@example.com').build(),
+        TenantEntryBuilder.make().withName('Tenant 1').build(),
+        TenantEntryBuilder.make().withName('Tenant 2').build(),
+        TenantEntryBuilder.make().withName('Tenant 3').build(),
       ])
       .returning('*');
     tenantsGlobal.push(...tenant);
@@ -120,7 +120,11 @@ describe('API - User - GET', () => {
 
   it('Error - Should return a 400 error if the query parameters are missing', async () => {
     // Event missing the uuid path parameter
-    const event = APIGatewayProxyEventBuilder.make().build();
+    const event = APIGatewayProxyEventBuilder.make()
+      .withQueryStringParameters({
+        tenantId: tenantsGlobal[0].Id.toString(),
+      })
+      .build();
 
     // Run the handler
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
@@ -129,7 +133,7 @@ describe('API - User - GET', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body).toBeDefined();
 
-    const resultData = JSON.parse(res.body!).errorMessage;
+    const resultData = JSON.parse(res.body!).message;
     expect(resultData).toContain('Missing required query parameters: limit, offset');
   });
 });
