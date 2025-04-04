@@ -1,14 +1,12 @@
-class Success {
-  name: string;
+export abstract class Success {
   message: string;
+  name: string;
+  statusCode?: number;
   data?: any;
-  statusCode: number;
 
-  constructor(message: string, data?: any) {
+  constructor(message: string) {
     this.message = message;
     this.name = 'Success';
-    this.statusCode = 200;
-    this.data = data;
   }
 }
 
@@ -23,23 +21,24 @@ export class FetchSuccess<T> extends Success {
   }
 }
 
+// As API response when deleting data
 export class DeleteSuccess<T> extends Success {
   constructor(message: string, data?: T) {
     super(message || '');
     this.message = message;
     this.name = 'DeleteSuccess';
-    this.statusCode = !data ? 204 : 200;
+    this.statusCode = 204;
     this.data = data;
   }
 }
 
 // As API response when persisting data
 export class PersistSuccess<T> extends Success {
-  constructor(message: string, data?: T) {
+  constructor(message: string, data?: T, statusCode?: number) {
     super(message || '');
     this.message = message;
     this.name = 'PersistSuccess';
-    this.statusCode = 201;
+    this.statusCode = statusCode;
     this.data = data;
   }
 }

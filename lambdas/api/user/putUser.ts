@@ -7,7 +7,7 @@ import { validateAndParseBody, validateAndParsePathParams, validateAndParseQuery
 import { selectUserByExternalUuid, selectUserById, updateUser } from '../../../repositories/userRepository.js';
 import { BadRequestError, InternalError } from '../../../models/api/responses/errors.js';
 import { UserEntry } from '../../../models/database/userEntry.js';
-import type { PutUserRequestPayload, PutUserResponsePayload } from '../../../models/api/payloads/user.js';
+import { putUserRequestSchema, type PutUserRequestPayload, type PutUserResponsePayload } from '../../../models/api/payloads/user.js';
 import { QueryParamDataType } from '../../../models/api/validations.js';
 export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyResultV2> {
   logger.info('Request received: ', request);
@@ -23,7 +23,7 @@ async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer)
   logger.info('Start - validateRequest');
 
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
-  const parsedRequestBody = validateAndParseBody<PutUserRequestPayload>(request, ['firstName', 'lastName', 'email']);
+  const parsedRequestBody = validateAndParseBody<PutUserRequestPayload>(request, putUserRequestSchema);
 
   // TODO: Pull tenantId and userId from the token
   const eventQueryParams = validateAndParseQueryParams<{ tenantId: number }>(request, [
@@ -56,7 +56,7 @@ export async function formatResponseData(userId: number): Promise<PersistSuccess
   const user = await selectUserById(userId);
 
   if (!user) {
-    throw new InternalError('User not found');
+    throw new BadRequestError('User not found');
   }
 
   return new PersistSuccess<PutUserResponsePayload>('User has been updated', user.toPublic());

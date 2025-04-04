@@ -3,11 +3,12 @@ import { logger } from '../../../lib/utils/logger.js';
 import { PersistSuccess } from '../../../models/api/responses/success.js';
 import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiResponseFormatters.js';
 import { validateAndParseBody, validateAndParseQueryParams } from '../../../lib/utils/apiValidations.js';
-import { InternalError } from '../../../models/api/responses/errors.js';
+import { BadRequestError } from '../../../models/api/responses/errors.js';
 import { QueryParamDataType, type ValidatedAPIRequest } from '../../../models/api/validations.js';
 import type { PostCustomerRequestPayload, PostCustomerResponsePayload } from '../../../models/api/payloads/customer.js';
 import { CustomerEntry } from '../../../models/database/customerEntry.js';
 import { insertCustomer, selectCustomerById } from '../../../repositories/customerRepository.js';
+import { postCustomerRequestSchema } from '../../../models/api/payloads/customer.js';
 
 export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyStructuredResultV2> {
   logger.info('Request received: ', request);
@@ -22,16 +23,7 @@ export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer):
 async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<ValidatedAPIRequest<PostCustomerRequestPayload>> {
   logger.info('Start - validateRequest');
 
-  const parsedRequestBody = validateAndParseBody<PostCustomerRequestPayload>(request, [
-    'firstName',
-    'lastName',
-    'email',
-    'phone',
-    'street',
-    'city',
-    'state',
-    'zipCode',
-  ]);
+  const parsedRequestBody = validateAndParseBody<PostCustomerRequestPayload>(request, postCustomerRequestSchema);
 
   // TODO: Pull tenantId and userId from the token
   const eventQueryParams = validateAndParseQueryParams<{ tenantId: number }>(request, [
@@ -56,7 +48,7 @@ export async function formatResponseData(customerId: number): Promise<PersistSuc
   const customer = await selectCustomerById(customerId);
 
   if (!customer) {
-    throw new InternalError('Customer not found');
+    throw new BadRequestError('Customer not found');
   }
 
   return new PersistSuccess<PostCustomerResponsePayload>('Customer has been created', customer.toPublic());

@@ -6,7 +6,11 @@ import { validateAndParseBody, validateAndParseQueryParams } from '../../../lib/
 import { BadRequestError, InternalError } from '../../../models/api/responses/errors.js';
 import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
 import { QueryParamDataType } from '../../../models/api/validations.js';
-import type { PostActivityRequestPayload, PostActivityResponsePayload } from '../../../models/api/payloads/activity.js';
+import {
+  postActivityRequestSchema,
+  type PostActivityRequestPayload,
+  type PostActivityResponsePayload,
+} from '../../../models/api/payloads/activity.js';
 import { ActivityEntry } from '../../../models/database/activityEntry.js';
 import { insertActivity, selectActivityById } from '../../../repositories/activityRepository.js';
 import { selectDealByExternalUuid } from '../../../repositories/dealRepository.js';
@@ -24,7 +28,7 @@ export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer):
 async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<ValidatedAPIRequest<PostActivityRequestPayload>> {
   logger.info('Start - validateRequest');
 
-  const parsedRequestBody = validateAndParseBody<PostActivityRequestPayload>(request, ['description', 'date']);
+  const parsedRequestBody = validateAndParseBody<PostActivityRequestPayload>(request, postActivityRequestSchema);
 
   // TODO: Pull tenantId and userId from the token
   const eventQueryParams = validateAndParseQueryParams<{ tenantId: number }>(request, [
@@ -57,7 +61,7 @@ export async function formatResponseData(activityId: number): Promise<PersistSuc
 
   const activity = await selectActivityById(activityId);
   if (!activity) {
-    throw new InternalError('Activity not found');
+    throw new BadRequestError('Activity not found');
   }
 
   return new PersistSuccess<PostActivityResponsePayload>('Activity has been created', activity.toPublic());

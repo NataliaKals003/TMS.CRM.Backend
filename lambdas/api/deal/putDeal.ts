@@ -5,8 +5,8 @@ import { QueryParamDataType } from '../../../models/api/validations.js';
 import { PersistSuccess } from '../../../models/api/responses/success.js';
 import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiResponseFormatters.js';
 import { validateAndParseBody, validateAndParsePathParams, validateAndParseQueryParams } from '../../../lib/utils/apiValidations.js';
-import { BadRequestError, InternalError } from '../../../models/api/responses/errors.js';
-import type { PutDealRequestPayload, PutDealResponsePayload } from '../../../models/api/payloads/deal.js';
+import { BadRequestError } from '../../../models/api/responses/errors.js';
+import { putDealRequestSchema, type PutDealRequestPayload, type PutDealResponsePayload } from '../../../models/api/payloads/deal.js';
 import { DealEntry } from '../../../models/database/dealEntry.js';
 import { selectDealByExternalUuid, selectDealById, updateDeal } from '../../../repositories/dealRepository.js';
 
@@ -22,20 +22,8 @@ export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer):
 
 async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<ValidatedAPIRequest<PutDealRequestPayload>> {
   logger.info('Start - validateRequest');
-
   // Declare required field
-  const parsedRequestBody = validateAndParseBody<PutDealRequestPayload>(request, [
-    'price',
-    'street',
-    'city',
-    'state',
-    'zipCode',
-    'roomArea',
-    'numberOfPeople',
-    'appointmentDate',
-    'progress',
-    'roomAccess',
-  ]);
+  const parsedRequestBody = validateAndParseBody<PutDealRequestPayload>(request, putDealRequestSchema);
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
   // TODO: Pull tenantId and userId from the token
@@ -69,8 +57,8 @@ async function formatResponseData(dealId: number): Promise<PersistSuccess<PutDea
   const deal = await selectDealById(dealId);
 
   if (!deal) {
-    throw new InternalError('Deal not found');
+    throw new BadRequestError('Deal not found');
   }
 
-  return new PersistSuccess<PutDealResponsePayload>('Deal has been updated', deal.toPublic());
+  return new PersistSuccess<PutDealResponsePayload>('Deal has been updated', deal.toPublic(), 200);
 }

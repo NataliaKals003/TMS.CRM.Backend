@@ -46,7 +46,7 @@ export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>):
   return activity;
 }
 
-export async function formatResponseData(activity: ExtendedActivityEntry): Promise<PersistSuccess<GetActivityResponsePayload>> {
+export async function formatResponseData(activity: ExtendedActivityEntry): Promise<FetchSuccess<GetActivityResponsePayload>> {
   logger.info('Start - formatResponse');
 
   return new FetchSuccess<GetActivityResponsePayload>('Successfully fetched activity', activity.toPublic());

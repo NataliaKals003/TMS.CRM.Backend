@@ -46,7 +46,7 @@ export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>):
   return deal;
 }
 
-export async function formatResponseData(deal: ExtendedDealEntry): Promise<PersistSuccess<GetDealResponsePayload>> {
+export async function formatResponseData(deal: ExtendedDealEntry): Promise<FetchSuccess<GetDealResponsePayload>> {
   logger.info('Start - formatResponse');
 
   return new FetchSuccess<GetDealResponsePayload>('Successfully fetched deal', deal.toPublic());

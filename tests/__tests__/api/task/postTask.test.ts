@@ -33,7 +33,7 @@ describe('API - Task - POST', () => {
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
 
     // Validate the API response
-    expect(res.statusCode).toBe(201);
+    expect(res.statusCode).toBe(200);
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).data;
