@@ -3,7 +3,7 @@ import { logger } from '../../../lib/utils/logger.js';
 import { DeleteSuccess } from '../../../models/api/responses/success.js';
 import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiResponseFormatters.js';
 import { validateAndParsePathParams, validateAndParseQueryParams } from '../../../lib/utils/apiValidations.js';
-import { BadRequestError } from '../../../models/api/responses/errors.js';
+import { BadRequestError, InternalError } from '../../../models/api/responses/errors.js';
 import type { ValidatedAPIRequest } from '../../../models/api/validations.js';
 import { QueryParamDataType } from '../../../models/api/validations.js';
 import { selectActivityByExternalUuid, softDeleteActivityById } from '../../../repositories/activityRepository.js';

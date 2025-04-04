@@ -9,6 +9,7 @@ import { BadRequestError, InternalError } from '../../../models/api/responses/er
 import type { PutActivityRequestPayload, PutActivityResponsePayload } from '../../../models/api/payloads/activity.js';
 import { selectActivityByExternalUuid, selectActivityById, updateActivity } from '../../../repositories/activityRepository.js';
 import { ActivityEntry } from '../../../models/database/activityEntry.js';
+import { putActivityRequestSchema } from '../../../models/api/payloads/activity.js';
 
 export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyResultV2> {
   logger.info('Request received: ', request);
@@ -23,7 +24,7 @@ export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer):
 async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<ValidatedAPIRequest<PutActivityRequestPayload>> {
   logger.info('Start - validateRequest');
 
-  const parsedRequestBody = validateAndParseBody<PutActivityRequestPayload>(request, ['description', 'date']);
+  const parsedRequestBody = validateAndParseBody<PutActivityRequestPayload>(request, putActivityRequestSchema);
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
   // TODO: Pull tenantId and userId from the token
@@ -57,8 +58,8 @@ export async function formatResponseData(activityId: number): Promise<PersistSuc
   const activity = await selectActivityById(activityId);
 
   if (!activity) {
-    throw new InternalError('Activity not found');
+    throw new BadRequestError('Activity not found');
   }
 
-  return new PersistSuccess<PutActivityResponsePayload>('Activity has been updated', activity.toPublic());
+  return new PersistSuccess<PutActivityResponsePayload>('Activity has been updated', activity.toPublic(), 200);
 }

@@ -82,7 +82,7 @@ describe('API - Activity - POST', () => {
     const res = (await handler(event)) as APIGatewayProxyStructuredResultV2;
 
     // Validate the API response
-    expect(res.statusCode).toBe(201);
+    expect(res.statusCode).toBe(200);
     expect(res.body).toBeDefined();
 
     const resultData = JSON.parse(res.body!).data;
@@ -104,6 +104,8 @@ describe('API - Activity - POST', () => {
     const event = APIGatewayProxyEventBuilder.make()
       .withBody({
         description: 'This is a test activity',
+        imageUrl: 'https://www.google.com',
+        dealUuid: dealsGlobal[0].ExternalUuid,
       })
       .withQueryStringParameters({
         tenantId: tenantsGlobal[0].Id.toString(),

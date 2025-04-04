@@ -46,7 +46,7 @@ export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>):
   return user;
 }
 
-export async function formatResponseData(user: UserEntry): Promise<PersistSuccess<GetUserResponsePayload>> {
+export async function formatResponseData(user: UserEntry): Promise<FetchSuccess<GetUserResponsePayload>> {
   logger.info('Start - formatResponse');
 
   return new FetchSuccess<GetUserResponsePayload>('Successfully fetched user', user.toPublic());

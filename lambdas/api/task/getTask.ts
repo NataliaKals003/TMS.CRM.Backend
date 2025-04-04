@@ -47,7 +47,7 @@ export async function queryRecords(validatedRequest: ValidatedAPIRequest<null>):
   return task;
 }
 
-export async function formatResponseData(task: TaskEntry): Promise<PersistSuccess<GetTaskResponsePayload>> {
+export async function formatResponseData(task: TaskEntry): Promise<FetchSuccess<GetTaskResponsePayload>> {
   logger.info('Start - formatResponse');
 
   return new FetchSuccess<GetTaskResponsePayload>('Successfully fetched task', task.toPublic());

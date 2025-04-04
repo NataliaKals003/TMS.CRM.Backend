@@ -1,5 +1,5 @@
 export abstract class HttpError extends Error {
-  protected statusCode?: number;
+  public statusCode?: number;
 }
 
 export class BadRequestError extends HttpError {

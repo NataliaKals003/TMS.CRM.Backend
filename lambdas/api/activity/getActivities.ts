@@ -9,6 +9,7 @@ import type { PaginatedResponse } from '../../../models/api/responses/pagination
 import { selectActivities } from '../../../repositories/activityRepository.js';
 import type { GetActivityListFilter, GetActivityListResponsePayload, PublicActivity } from '../../../models/api/payloads/activity.js';
 import type { ExtendedActivityEntry } from '../../../models/database/activityEntry.js';
+import { InternalError } from '../../../models/api/responses/errors.js';
 
 export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<APIGatewayProxyResultV2> {
   logger.info('Request received: ', request);

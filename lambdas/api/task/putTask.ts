@@ -6,7 +6,7 @@ import { PersistSuccess } from '../../../models/api/responses/success.js';
 import { formatErrorResponse, formatOkResponse } from '../../../lib/utils/apiResponseFormatters.js';
 import { validateAndParseBody, validateAndParsePathParams, validateAndParseQueryParams } from '../../../lib/utils/apiValidations.js';
 import { BadRequestError, InternalError } from '../../../models/api/responses/errors.js';
-import type { PutTaskRequestPayload, PutTaskResponsePayload } from '../../../models/api/payloads/task.js';
+import { putTaskRequestSchema, type PutTaskRequestPayload, type PutTaskResponsePayload } from '../../../models/api/payloads/task.js';
 import { selectTaskByExternalUuid, selectTaskById, updateTask } from '../../../repositories/taskRepository.js';
 import { TaskEntry } from '../../../models/database/taskEntry.js';
 
@@ -23,7 +23,7 @@ export async function handler(request: APIGatewayProxyEventV2WithJWTAuthorizer):
 async function validateRequest(request: APIGatewayProxyEventV2WithJWTAuthorizer): Promise<ValidatedAPIRequest<PutTaskRequestPayload>> {
   logger.info('Start - validateRequest');
 
-  const parsedRequestBody = validateAndParseBody<PutTaskRequestPayload>(request, ['description', 'dueDate', 'completed']);
+  const parsedRequestBody = validateAndParseBody<PutTaskRequestPayload>(request, putTaskRequestSchema);
   const parsedPathParameter = validateAndParsePathParams<{ [param: string]: string }>(request, ['uuid']);
 
   // TODO: Pull tenantId and userId from the token
@@ -57,8 +57,8 @@ export async function formatResponseData(taskId: number): Promise<PersistSuccess
   const task = await selectTaskById(taskId);
 
   if (!task) {
-    throw new InternalError('Task not found');
+    throw new BadRequestError('Task not found');
   }
 
-  return new PersistSuccess<PutTaskResponsePayload>('Task has been updated', task.toPublic());
+  return new PersistSuccess<PutTaskResponsePayload>('Task has been updated', task.toPublic(), 200);
 }
